@@ -19,7 +19,7 @@ void load_file(StringT&& filename, Callable f)
 
         auto it = tok.begin();
         ++it; // skip the 1st field
-        const std::string& ref = *it;
+        std::string ref = *it;
         ++it;
         double price = std::stof(*it);
 

@@ -21,7 +21,10 @@ struct stock
 
 struct market_data_provider
 {
-    void add_stock(stock&& s) { m_stocks.insert(std::move(s)); }
+    void add_stock(stock&& s)
+    {
+        m_stocks.insert(std::move(s));
+    }
 
     void on_price_change(const char* market_ref, double new_price)
     {

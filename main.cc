@@ -4,6 +4,7 @@
 
 #include <iterator>
 #include <fstream>
+#include <chrono>
 
 template <typename StringT, typename Callable>
 void load_file(StringT&& filename, Callable f)
@@ -35,11 +36,27 @@ int main(int argc, char** argv)
     }
 
     market_data_provider mdp;
+    std::vector<stock> stocks;
 
     load_file(argv[1], [&](const std::string& ref, double price)
     {
         mdp.add_stock(stock{ref, ref, price, 100});
+        stocks.push_back({ref, ref, price, 100});
     });
+
+    {
+        auto start = std::chrono::steady_clock::now();
+
+        static const int Iterations = 1e4;
+        for (int i = 0; i < Iterations; ++i)
+        {
+            const stock& s = stocks[std::rand() % stocks.size()];
+            mdp.on_price_change(s.market_ref.c_str(), 10.0);
+        }
+
+        auto end = std::chrono::steady_clock::now();
+        std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+    }
 
   return 0;
 }

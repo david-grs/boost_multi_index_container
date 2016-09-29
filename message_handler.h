@@ -19,11 +19,13 @@ struct stock
     int volume;
 };
 
-struct message_handler
+struct market_data_provider
 {
+    void add_stock(stock&& s) { m_stocks.insert(std::move(s)); }
+
     void on_price_change(const char* market_ref, double new_price)
     {
-        auto& view = mEvents.get<by_reference>();
+        auto& view = m_stocks.get<by_reference>();
         auto it = view.find(market_ref);
 
         if (it == view.end())
@@ -44,11 +46,11 @@ private:
           BOOST_MULTI_INDEX_MEMBER(stock, std::string, market_ref)
         >
       >
-    > mEvents;
+    > m_stocks;
 };
 
 }
 
 using impl::stock;
-using impl::message_handler;
+using impl::market_data_provider;
 

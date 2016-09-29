@@ -51,7 +51,21 @@ int main(int argc, char** argv)
         for (int i = 0; i < Iterations; ++i)
         {
             const stock& s = stocks[std::rand() % stocks.size()];
-            mdp.on_price_change(s.market_ref.c_str(), 10.0);
+            mdp.on_price_change_mic(s.market_ref.c_str(), 10.0);
+        }
+
+        auto end = std::chrono::steady_clock::now();
+        std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+    }
+
+    {
+        auto start = std::chrono::steady_clock::now();
+
+        static const int Iterations = 1e4;
+        for (int i = 0; i < Iterations; ++i)
+        {
+            const stock& s = stocks[std::rand() % stocks.size()];
+            mdp.on_price_change_umap(s.market_ref.c_str(), 10.0);
         }
 
         auto end = std::chrono::steady_clock::now();

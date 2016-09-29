@@ -5,6 +5,7 @@
 #include <boost/multi_index/hashed_index.hpp>
 
 #include <string>
+#include <unordered_map>
 
 namespace impl
 {
@@ -23,10 +24,11 @@ struct market_data_provider
 {
     void add_stock(stock&& s)
     {
-        m_stocks.insert(std::move(s));
+        m_stocks.insert(s);
+        m_stocks2.emplace(s.market_ref, std::move(s));
     }
 
-    void on_price_change(const char* market_ref, double new_price)
+    void on_price_change_mic(const char* market_ref, double new_price)
     {
         auto& view = m_stocks.get<by_reference>();
         auto it = view.find(market_ref);
@@ -35,7 +37,17 @@ struct market_data_provider
             throw std::runtime_error("stock " + std::string(market_ref) + " not found");
 
         const_cast<stock&>(*it).price = new_price; // fine, price is not an index
-    };
+    }
+
+    void on_price_change_umap(const char* market_ref, double new_price)
+    {
+        auto it = m_stocks2.find(market_ref);
+
+        if (it == m_stocks2.end())
+            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
+
+        it->second.price = new_price;
+    }
 
 private:
 
@@ -50,6 +62,8 @@ private:
         >
       >
     > m_stocks;
+
+    std::unordered_map<std::string, stock> m_stocks2;
 };
 
 }

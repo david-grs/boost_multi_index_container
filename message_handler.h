@@ -21,6 +21,16 @@ struct stock
 
 struct message_handler
 {
+    void on_price_change(const char* market_ref, double new_price)
+    {
+        auto& view = mEvents.get<by_reference>();
+        auto it = view.find(market_ref);
+
+        if (it == view.end())
+            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
+
+        const_cast<stock&>(*it).price = new_price; // fine, price is not an index
+    };
 
 private:
 

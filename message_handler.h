@@ -38,8 +38,9 @@ struct market_data_provider
     void add_stock(stock&& s)
     {
         m_stocks.insert(s);
+        m_stocks2.insert(s);
         m_stocks3.insert(s);
-        m_stocks2.emplace(s.market_ref, std::move(s));
+        m_stocks4.emplace(s.market_ref, std::move(s));
     }
 
     void on_price_change_mic(const char* market_ref, double new_price)
@@ -58,7 +59,7 @@ struct market_data_provider
 
     void on_price_change_mic_view(const char* market_ref, int len, double new_price)
     {
-        auto& view = m_stocks.get<by_reference_view>();
+        auto& view = m_stocks2.get<by_reference_view>();
 
         std::experimental::string_view ref_view(market_ref, len);
         auto it = view.find(ref_view);
@@ -71,9 +72,9 @@ struct market_data_provider
 
     void on_price_change_umap(const char* market_ref, double new_price)
     {
-        auto it = m_stocks2.find(market_ref);
+        auto it = m_stocks4.find(market_ref);
 
-        if (it == m_stocks2.end())
+        if (it == m_stocks4.end())
             throw std::runtime_error("stock " + std::string(market_ref) + " not found");
 
         it->second.price = new_price;
@@ -90,14 +91,21 @@ private:
         hashed_unique<
           tag<by_reference>,
           BOOST_MULTI_INDEX_MEMBER(stock, std::string, market_ref)
-        >,
+          // BOOST_MULTI_INDEX_CONST_MEM_FUN(stock, const char*, get_market_ref)
+        >
+      >
+    > m_stocks;
+
+    boost::multi_index_container<
+      stock,
+      indexed_by<
         hashed_unique<
           tag<by_reference_view>,
           BOOST_MULTI_INDEX_MEMBER(stock, std::experimental::string_view, market_ref_view),
           std::hash<std::experimental::string_view>
         >
       >
-    > m_stocks;
+    > m_stocks2;
 
     boost::multi_index_container<
       stock,
@@ -109,7 +117,7 @@ private:
       >
     > m_stocks3;
 
-    std::unordered_map<std::string, stock> m_stocks2;
+    std::unordered_map<std::string, stock> m_stocks4;
 };
 
 }

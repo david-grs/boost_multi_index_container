@@ -54,6 +54,7 @@ int main(int argc, char** argv)
 
     {
         mem_allocs = 0;
+        counter::reset();
         auto start = std::chrono::steady_clock::now();
 
         static const int Iterations = 1e4;
@@ -64,11 +65,12 @@ int main(int argc, char** argv)
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - " << counter() << std::endl;
     }
 
     {
         mem_allocs = 0;
+        counter::reset();
         auto start = std::chrono::steady_clock::now();
 
         static const int Iterations = 1e4;
@@ -79,11 +81,12 @@ int main(int argc, char** argv)
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - " << counter() << std::endl;
     }
 
     {
         mem_allocs = 0;
+        counter::reset();
         auto start = std::chrono::steady_clock::now();
 
         static const int Iterations = 1e4;
@@ -94,7 +97,7 @@ int main(int argc, char** argv)
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - " << counter() << std::endl;
     }
 
   return 0;

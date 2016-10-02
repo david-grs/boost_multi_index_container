@@ -6,6 +6,14 @@
 #include <fstream>
 #include <chrono>
 
+int mem_allocs = 0;
+
+void* operator new(std::size_t n)
+{
+    ++mem_allocs;
+    return malloc(n);
+}
+
 template <typename StringT, typename Callable>
 void load_file(StringT&& filename, Callable f)
 {
@@ -45,6 +53,7 @@ int main(int argc, char** argv)
     });
 
     {
+        mem_allocs = 0;
         auto start = std::chrono::steady_clock::now();
 
         static const int Iterations = 1e4;
@@ -55,10 +64,11 @@ int main(int argc, char** argv)
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
     }
 
     {
+        mem_allocs = 0;
         auto start = std::chrono::steady_clock::now();
 
         static const int Iterations = 1e4;
@@ -69,10 +79,11 @@ int main(int argc, char** argv)
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
     }
 
     {
+        mem_allocs = 0;
         auto start = std::chrono::steady_clock::now();
 
         static const int Iterations = 1e4;
@@ -83,7 +94,7 @@ int main(int argc, char** argv)
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
+        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << std::endl;
     }
 
   return 0;

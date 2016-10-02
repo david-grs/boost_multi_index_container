@@ -41,8 +41,10 @@ struct market_data_provider
     void on_price_change_mic(const char* market_ref, double new_price)
     {
         auto& view = m_stocks.get<by_reference>();
-        
-        auto it = view.find(market_ref);
+
+        // using this temp std::string cut by half the number of std::string copies in boost.mic
+        std::string str_market_ref(market_ref);
+        auto it = view.find(str_market_ref);
 
         if (it == view.end())
             throw std::runtime_error("stock " + std::string(market_ref) + " not found");

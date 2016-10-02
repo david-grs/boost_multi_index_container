@@ -1,5 +1,7 @@
 #pragma once
 
+#include "counter.h"
+
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/hashed_index.hpp>
@@ -14,7 +16,7 @@ namespace impl
 
 using namespace boost::multi_index;
 
-struct stock
+struct stock : public counter
 {
     stock(const std::string& _market_ref, const std::string& _id, double _price, int _volume) :
         market_ref(_market_ref),

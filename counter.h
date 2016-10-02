@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+
 struct counter
 {
     counter() = default;
@@ -29,3 +31,9 @@ int counter::copy_ctor = 0;
 int counter::copy_assign = 0;
 int counter::move_ctor = 0;
 int counter::move_assign = 0;
+
+std::ostream& operator<<(std::ostream& os, const counter& a)
+{
+    return os << " copy_ctor=" << a.copy_ctor << " copy_assign=" << a.copy_assign <<
+                         " move_ctor=" << a.move_ctor << " move_assign=" << a.move_assign;
+}

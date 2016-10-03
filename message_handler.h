@@ -20,13 +20,13 @@ struct stock
 {
     stock(const std::string& _market_ref, const std::string& _id, double _price, int _volume) :
         market_ref(_market_ref),
-        market_ref_view(market_ref.data(), market_ref.size()),
+        market_ref_view(_market_ref.data(), _market_ref.size()),
         id(_id),
         price(_price),
         volume(_volume)
     {}
 
-    const char* get_market_ref() const { return market_ref.c_str(); }
+    const char* get_market_ref() const { return market_ref.get().c_str(); }
 
     counter<std::string> market_ref; // exchange specific
     counter<std::experimental::string_view> market_ref_view;
@@ -42,7 +42,7 @@ struct market_data_provider
         m_stocks.insert(s);
         m_stocks2.insert(s);
         m_stocks3.insert(s);
-        m_stocks4.emplace(s.market_ref, std::move(s));
+        m_stocks4.emplace(s.market_ref.get(), std::move(s));
     }
 
     void on_price_change_mic(const char* market_ref, double new_price)
@@ -92,7 +92,8 @@ private:
       indexed_by<
         hashed_unique<
           tag<by_reference>,
-          BOOST_MULTI_INDEX_MEMBER(stock, std::string, market_ref)
+          BOOST_MULTI_INDEX_MEMBER(stock, counter<std::string>, market_ref),
+          std::hash<counter<std::string>>
           // BOOST_MULTI_INDEX_CONST_MEM_FUN(stock, const char*, get_market_ref)
         >
       >
@@ -103,8 +104,8 @@ private:
       indexed_by<
         hashed_unique<
           tag<by_reference_view>,
-          BOOST_MULTI_INDEX_MEMBER(stock, std::experimental::string_view, market_ref_view),
-          std::hash<std::experimental::string_view>
+          BOOST_MULTI_INDEX_MEMBER(stock, counter<std::experimental::string_view>, market_ref_view),
+          std::hash<counter<std::experimental::string_view>>
         >
       >
     > m_stocks2;

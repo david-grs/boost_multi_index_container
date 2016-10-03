@@ -1,11 +1,15 @@
 #pragma once
 
 #include <sstream>
+#include <type_traits>
+#include <typeinfo>
 
 template <typename T>
 struct counter
 {
-    counter() = default;
+    template <typename... Args, typename = typename std::enable_if<std::is_constructible<T, Args...>::value>::type>
+    counter(Args&&... args) : _t(std::forward<Args>(args)...) {}
+
     virtual ~counter() {}
 
     counter(const counter& c) { _t = c._t; ++copy_ctor; }
@@ -15,6 +19,8 @@ struct counter
     counter& operator=(counter&& c) {  _t = std::move(c._t); ++move_assign; return *this; }
 
     const T& get() const { return _t; }
+
+    bool operator==(const counter<T>& c) const { return _t == c._t; }
 
     static void reset()
     {
@@ -48,7 +54,7 @@ int counter<T>::move_assign = 0;
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const counter<T>& a)
 {
-    return os << " copy_ctor=" << a.copy_ctor << " copy_assign=" << a.copy_assign <<
+    return os << typeid(T).name() << " copy_ctor=" << a.copy_ctor << " copy_assign=" << a.copy_assign <<
                  " move_ctor=" << a.move_ctor << " move_assign=" << a.move_assign;
 }
 

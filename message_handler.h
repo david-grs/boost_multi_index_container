@@ -16,7 +16,7 @@ namespace impl
 
 using namespace boost::multi_index;
 
-struct stock : public counter
+struct stock
 {
     stock(const std::string& _market_ref, const std::string& _id, double _price, int _volume) :
         market_ref(_market_ref),

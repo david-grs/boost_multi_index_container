@@ -8,9 +8,9 @@ template <typename T>
 struct counter
 {
     template <typename... Args, typename = typename std::enable_if<std::is_constructible<T, Args...>::value>::type>
-    counter(Args&&... args) : _t(std::forward<Args>(args)...) {}
+    counter(Args&&... args) : _t(std::forward<Args>(args)...) { ++ctor; }
 
-    virtual ~counter() {}
+    virtual ~counter() { ++dtor; }
 
     counter(const counter& c) { _t = c._t; ++copy_ctor; }
     counter& operator=(const counter& c) { _t = c._t; ++copy_assign; return *this; }
@@ -24,12 +24,16 @@ struct counter
 
     static void reset()
     {
+        ctor = 0;
+        dtor = 0;
         copy_ctor = 0;
         copy_assign = 0;
         move_ctor = 0;
         move_assign = 0;
     }
 
+    static int ctor;
+    static int dtor;
     static int copy_ctor;
     static int copy_assign;
     static int move_ctor;
@@ -38,6 +42,12 @@ struct counter
 private:
     T _t;
 };
+
+template <typename T>
+int counter<T>::ctor = 0;
+
+template <typename T>
+int counter<T>::dtor = 0;
 
 template <typename T>
 int counter<T>::copy_ctor = 0;
@@ -54,8 +64,8 @@ int counter<T>::move_assign = 0;
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const counter<T>& a)
 {
-    return os << typeid(T).name() << " copy_ctor=" << a.copy_ctor << " copy_assign=" << a.copy_assign <<
-                 " move_ctor=" << a.move_ctor << " move_assign=" << a.move_assign;
+    return os << typeid(T).name() << " ctor=" << a.ctor << " dtor=" << a.dtor << " copy_ctor=" << a.copy_ctor
+                << " copy_assign=" << a.copy_assign << " move_ctor=" << a.move_ctor << " move_assign=" << a.move_assign;
 }
 
 

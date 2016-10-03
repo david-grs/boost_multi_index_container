@@ -28,8 +28,8 @@ struct stock
 
     const char* get_market_ref() const { return market_ref.c_str(); }
 
-    std::string market_ref; // exchange specific
-    std::experimental::string_view market_ref_view;
+    counter<std::string> market_ref; // exchange specific
+    counter<std::experimental::string_view> market_ref_view;
     std::string id;         // unique company-wide
     double price;
     int volume;

@@ -14,6 +14,8 @@ struct counter
     counter(counter&& c) : _t(std::move(c._t)) { ++move_ctor; }
     counter& operator=(counter&& c) {  _t = std::move(c._t); ++move_assign; return *this; }
 
+    const T& get() const { return _t; }
+
     static void reset()
     {
         copy_ctor = 0;
@@ -48,4 +50,19 @@ std::ostream& operator<<(std::ostream& os, const counter<T>& a)
 {
     return os << " copy_ctor=" << a.copy_ctor << " copy_assign=" << a.copy_assign <<
                  " move_ctor=" << a.move_ctor << " move_assign=" << a.move_assign;
+}
+
+
+namespace std
+{
+
+template <typename T>
+struct hash<counter<T>>
+{
+    std::size_t operator()(const counter<T>& c) const
+    {
+        return typename std::hash<T>()(c.get());
+    }
+};
+
 }

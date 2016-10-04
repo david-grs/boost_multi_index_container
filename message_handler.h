@@ -41,17 +41,16 @@ struct market_data_provider
     {
         m_stocks.insert(s);
         m_stocks2.insert(s);
-        m_stocks3.insert(s);
         m_stocks4.emplace(s.market_ref.get(), std::move(s));
     }
 
     void on_price_change_mic(const char* market_ref, double new_price)
     {
-        auto& view = m_stocks3.get<by_reference>();
+        auto& view = m_stocks.get<by_reference>();
 
         // using this temp std::string cut by half the number of std::string copies in boost.mic
-        //std::string str_market_ref(market_ref);
-        auto it = view.find(market_ref);
+        counter<std::string> str_market_ref(market_ref);
+        auto it = view.find(str_market_ref);
 
         if (it == view.end())
             throw std::runtime_error("stock " + std::string(market_ref) + " not found");
@@ -109,16 +108,6 @@ private:
         >
       >
     > m_stocks2;
-
-    boost::multi_index_container<
-      stock,
-      indexed_by<
-        hashed_unique<
-          tag<by_reference>,
-          BOOST_MULTI_INDEX_CONST_MEM_FUN(stock, const char*, get_market_ref)
-        >
-      >
-    > m_stocks3;
 
     std::unordered_map<std::string, stock> m_stocks4;
 };

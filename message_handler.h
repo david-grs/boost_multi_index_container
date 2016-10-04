@@ -62,7 +62,7 @@ struct market_data_provider
     {
         auto& view = m_stocks2.get<by_reference_view>();
 
-        std::experimental::string_view ref_view(market_ref, len);
+        counter<std::experimental::string_view> ref_view(market_ref, len);
         auto it = view.find(ref_view);
 
         if (it == view.end())

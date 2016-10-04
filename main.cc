@@ -82,6 +82,25 @@ int main(int argc, char** argv)
         for (int i = 0; i < Iterations; ++i)
         {
             const stock& s = stocks[std::rand() % stocks.size()];
+            mdp.on_price_change_umap_view(s.market_ref.get().c_str(), s.market_ref.get().size(), 10.0);
+        }
+
+        auto end = std::chrono::steady_clock::now();
+        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - "
+                    << counter<std::string>() << " - " << counter<std::string>() << std::endl;
+    }
+
+    {
+        mem_allocs = 0;
+        counter<std::string>::reset();
+        counter<std::experimental::string_view>::reset();
+
+        auto start = std::chrono::steady_clock::now();
+
+        static const int Iterations = 1e4;
+        for (int i = 0; i < Iterations; ++i)
+        {
+            const stock& s = stocks[std::rand() % stocks.size()];
             mdp.on_price_change_mic(s.market_ref.get().c_str(), 10.0);
         }
 

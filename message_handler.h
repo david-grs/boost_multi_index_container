@@ -41,7 +41,8 @@ struct market_data_provider
     {
         m_stocks.insert(s);
         m_stocks2.insert(s);
-        m_stocks4.emplace(s.market_ref.get(), std::move(s));
+        m_stocks4.emplace(s.market_ref.get(), s);
+        m_stocks5.insert({{s.market_ref.get().c_str(), s.market_ref.get().size()}, std::move(s)});
     }
 
     void on_price_change_mic(const char* market_ref, double new_price)
@@ -81,6 +82,17 @@ struct market_data_provider
         it->second.price = new_price;
     }
 
+    void on_price_change_umap_view(const char* market_ref, int len, double new_price)
+    {
+        std::experimental::string_view ref_view(market_ref, len);
+        auto it = m_stocks5.find(ref_view);
+
+        if (it == m_stocks5.end())
+            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
+
+        it->second.price = new_price;
+    }
+
 private:
 
     struct by_reference {};
@@ -110,6 +122,7 @@ private:
     > m_stocks2;
 
     std::unordered_map<std::string, stock> m_stocks4;
+    std::unordered_map<std::experimental::string_view, stock> m_stocks5;
 };
 
 }

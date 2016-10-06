@@ -40,7 +40,6 @@ struct market_data_provider_mic_string
     void add_stock(const stock& s)
     {
         m_stocks.insert(s);
-        m_stocks2.insert(s);
     }
 
     void on_price_change(const char* market_ref, int len, double new_price)
@@ -57,23 +56,8 @@ struct market_data_provider_mic_string
         const_cast<stock&>(*it).price = new_price; // fine, price is not an index
     }
 
-    void on_price_change_mic_view(const char* market_ref, int len, double new_price)
-    {
-        auto& view = m_stocks2.get<by_reference_view>();
-
-        counter<std::experimental::string_view> ref_view(market_ref, len);
-        auto it = view.find(ref_view);
-
-        if (it == view.end())
-            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
-
-        const_cast<stock&>(*it).price = new_price; // fine, price is not an index
-    }
-
 private:
-
     struct by_reference {};
-    struct by_reference_view {};
 
     boost::multi_index_container<
       stock,
@@ -86,6 +70,31 @@ private:
         >
       >
     > m_stocks;
+};
+
+
+struct market_data_provider_mic_string_view
+{
+    void add_stock(const stock& s)
+    {
+        m_stocks.insert(s);
+    }
+
+    void on_price_change(const char* market_ref, int len, double new_price)
+    {
+        auto& view = m_stocks.get<by_reference_view>();
+
+        counter<std::experimental::string_view> ref_view(market_ref, len);
+        auto it = view.find(ref_view);
+
+        if (it == view.end())
+            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
+
+        const_cast<stock&>(*it).price = new_price; // fine, price is not an index
+    }
+
+private:
+    struct by_reference_view {};
 
     boost::multi_index_container<
       stock,
@@ -96,8 +105,9 @@ private:
           std::hash<counter<std::experimental::string_view>>
         >
       >
-    > m_stocks2;
+    > m_stocks;
 };
+
 
 struct market_data_provider_umap_string
 {
@@ -147,6 +157,7 @@ private:
 
 using impl::stock;
 using impl::market_data_provider_mic_string;
+using impl::market_data_provider_mic_string_view;
 using impl::market_data_provider_umap_string;
 using impl::market_data_provider_umap_string_view;
 

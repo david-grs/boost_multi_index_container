@@ -58,6 +58,7 @@ int main(int argc, char** argv)
         stocks.push_back({ref, ref, price, 100});
     });
 
+    auto benchmark_lookup = [&](auto&& market_data_provider)
     {
         mem_allocs = 0;
         counter<std::string>::reset();
@@ -69,70 +70,19 @@ int main(int argc, char** argv)
         for (int i = 0; i < Iterations; ++i)
         {
             const stock& s = stocks[std::rand() % stocks.size()];
-            mdp_mic_string.on_price_change(s.market_ref.get().c_str(), s.market_ref.get().size(), 10.0);
+            market_data_provider.on_price_change(s.market_ref.get().c_str(), s.market_ref.get().size(), 10.0);
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - "
-                    << counter<std::string>() << " - " << counter<std::string>() << std::endl;
-    }
+        std::cout << market_data_provider.name() << " --- mem allocs: " << mem_allocs
+                  << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - "
+                  << counter<std::string>() << " - " << counter<std::string>() << std::endl;
+    };
 
-    {
-        mem_allocs = 0;
-        counter<std::string>::reset();
-        counter<std::experimental::string_view>::reset();
-
-        auto start = std::chrono::steady_clock::now();
-
-        static const int Iterations = 1e4;
-        for (int i = 0; i < Iterations; ++i)
-        {
-            const stock& s = stocks[std::rand() % stocks.size()];
-            mdp_mic_string_view.on_price_change(s.market_ref.get().c_str(), s.market_ref.get().size(), 10.0);
-        }
-
-        auto end = std::chrono::steady_clock::now();
-        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - "
-                    << counter<std::string>() << " - " << counter<std::string>() << std::endl;
-    }
-
-    {
-        mem_allocs = 0;
-        counter<std::string>::reset();
-        counter<std::experimental::string_view>::reset();
-
-        auto start = std::chrono::steady_clock::now();
-
-        static const int Iterations = 1e4;
-        for (int i = 0; i < Iterations; ++i)
-        {
-            const stock& s = stocks[std::rand() % stocks.size()];
-            mdp_umap_string.on_price_change(s.market_ref.get().c_str(), s.market_ref.get().size(), 10.0);
-        }
-
-        auto end = std::chrono::steady_clock::now();
-        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - "
-                    << counter<std::string>() << " - " << counter<std::string>() << std::endl;
-    }
-
-    {
-        mem_allocs = 0;
-        counter<std::string>::reset();
-        counter<std::experimental::string_view>::reset();
-
-        auto start = std::chrono::steady_clock::now();
-
-        static const int Iterations = 1e4;
-        for (int i = 0; i < Iterations; ++i)
-        {
-            const stock& s = stocks[std::rand() % stocks.size()];
-            mdp_umap_string_view.on_price_change(s.market_ref.get().c_str(), s.market_ref.get().size(), 10.0);
-        }
-
-        auto end = std::chrono::steady_clock::now();
-        std::cout << "mem allocs: " << mem_allocs << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - "
-                    << counter<std::string>() << " - " << counter<std::string>() << std::endl;
-    }
-
+    benchmark_lookup(mdp_mic_string);
+    benchmark_lookup(mdp_mic_string_view);
+    benchmark_lookup(mdp_umap_string);
+    benchmark_lookup(mdp_umap_string_view);
+    
     return 0;
 }

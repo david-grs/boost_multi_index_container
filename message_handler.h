@@ -37,6 +37,8 @@ struct stock
 
 struct market_data_provider_mic_string
 {
+    static const char* name() { return "boost::mic<string>"; }
+
     void add_stock(const stock& s)
     {
         m_stocks.insert(s);
@@ -75,6 +77,8 @@ private:
 
 struct market_data_provider_mic_string_view
 {
+    static const char* name() { return "boost::mic<string_view>"; }
+
     void add_stock(const stock& s)
     {
         m_stocks.insert(s);
@@ -111,6 +115,8 @@ private:
 
 struct market_data_provider_umap_string
 {
+    static const char* name() { return "unordered_map<string>"; }
+
     void add_stock(const stock& s)
     {
         m_stocks.emplace(s.market_ref.get(), s);
@@ -133,6 +139,8 @@ private:
 
 struct market_data_provider_umap_string_view
 {
+    static const char* name() { return "unordered_map<string_view>"; }
+
     void add_stock(const stock& s)
     {
         m_stocks.insert({{s.market_ref.get().c_str(), s.market_ref.get().size()}, s});

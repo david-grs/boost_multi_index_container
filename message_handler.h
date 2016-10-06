@@ -35,17 +35,15 @@ struct stock
     int volume;
 };
 
-struct market_data_provider
+struct market_data_provider_mic_string
 {
-    void add_stock(stock&& s)
+    void add_stock(const stock& s)
     {
         m_stocks.insert(s);
         m_stocks2.insert(s);
-        m_stocks4.emplace(s.market_ref.get(), s);
-        m_stocks5.insert({{s.market_ref.get().c_str(), s.market_ref.get().size()}, std::move(s)});
     }
 
-    void on_price_change_mic(const char* market_ref, double new_price)
+    void on_price_change(const char* market_ref, int len, double new_price)
     {
         auto& view = m_stocks.get<by_reference>();
 
@@ -70,27 +68,6 @@ struct market_data_provider
             throw std::runtime_error("stock " + std::string(market_ref) + " not found");
 
         const_cast<stock&>(*it).price = new_price; // fine, price is not an index
-    }
-
-    void on_price_change_umap(const char* market_ref, double new_price)
-    {
-        auto it = m_stocks4.find(market_ref);
-
-        if (it == m_stocks4.end())
-            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
-
-        it->second.price = new_price;
-    }
-
-    void on_price_change_umap_view(const char* market_ref, int len, double new_price)
-    {
-        std::experimental::string_view ref_view(market_ref, len);
-        auto it = m_stocks5.find(ref_view);
-
-        if (it == m_stocks5.end())
-            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
-
-        it->second.price = new_price;
     }
 
 private:
@@ -120,13 +97,56 @@ private:
         >
       >
     > m_stocks2;
+};
 
-    std::unordered_map<std::string, stock> m_stocks4;
-    std::unordered_map<std::experimental::string_view, stock> m_stocks5;
+struct market_data_provider_umap_string
+{
+    void add_stock(const stock& s)
+    {
+        m_stocks.emplace(s.market_ref.get(), s);
+    }
+
+    void on_price_change(const char* market_ref, int len, double new_price)
+    {
+        auto it = m_stocks.find(market_ref);
+
+        if (it == m_stocks.end())
+            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
+
+        it->second.price = new_price;
+    }
+
+private:
+    std::unordered_map<std::string, stock> m_stocks;
+};
+
+
+struct market_data_provider_umap_string_view
+{
+    void add_stock(const stock& s)
+    {
+        m_stocks.insert({{s.market_ref.get().c_str(), s.market_ref.get().size()}, s});
+    }
+
+    void on_price_change(const char* market_ref, int len, double new_price)
+    {
+        std::experimental::string_view ref_view(market_ref, len);
+        auto it = m_stocks.find(ref_view);
+
+        if (it == m_stocks.end())
+            throw std::runtime_error("stock " + std::string(market_ref) + " not found");
+
+        it->second.price = new_price;
+    }
+
+private:
+    std::unordered_map<std::experimental::string_view, stock> m_stocks;
 };
 
 }
 
 using impl::stock;
-using impl::market_data_provider;
+using impl::market_data_provider_mic_string;
+using impl::market_data_provider_umap_string;
+using impl::market_data_provider_umap_string_view;
 

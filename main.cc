@@ -41,17 +41,17 @@ int main(int argc, char** argv)
 {
     if (argc != 2)
     {
-        std::cout << argv[0] << " <filename>" << std::endl;
+        std::cerr << argv[0] << " <filename>" << std::endl;
         return 1;
     }
+
+    std::srand(std::time(NULL));
 
     market_data_provider_mic_string mdp_mic_string;
     market_data_provider_mic_string_view mdp_mic_string_view;
     market_data_provider_umap_string mdp_umap_string;
     market_data_provider_umap_string_view mdp_umap_string_view;
     std::vector<stock> stocks;
-
-    std::srand(std::time(NULL));
 
     load_file(argv[1], [&](const std::string& ref, double price)
     {

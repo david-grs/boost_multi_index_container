@@ -68,7 +68,6 @@ private:
           tag<by_reference>,
           BOOST_MULTI_INDEX_MEMBER(stock, counter<std::string>, market_ref),
           std::hash<counter<std::string>>
-          // BOOST_MULTI_INDEX_CONST_MEM_FUN(stock, const char*, get_market_ref)
         >
       >
     > m_stocks;

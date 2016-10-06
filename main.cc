@@ -5,6 +5,8 @@
 #include <iterator>
 #include <fstream>
 #include <chrono>
+#include <ctime>
+#include <cstdlib>
 
 int mem_allocs = 0;
 
@@ -49,6 +51,8 @@ int main(int argc, char** argv)
     market_data_provider_umap_string_view mdp_umap_string_view;
     std::vector<stock> stocks;
 
+    std::srand(std::time(NULL));
+
     load_file(argv[1], [&](const std::string& ref, double price)
     {
         mdp_mic_string.add_stock(stock{ref, ref, price, 100});
@@ -83,6 +87,6 @@ int main(int argc, char** argv)
     benchmark_lookup(mdp_mic_string_view);
     benchmark_lookup(mdp_umap_string);
     benchmark_lookup(mdp_umap_string_view);
-    
+
     return 0;
 }

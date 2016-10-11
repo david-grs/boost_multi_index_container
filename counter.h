@@ -19,6 +19,7 @@ struct counter
     counter& operator=(counter&& c) {  _t = std::move(c._t); ++move_assign; return *this; }
 
     const T& get() const { return _t; }
+    T& get() { return _t; }
 
     bool operator==(const counter<T>& c) const { return _t == c._t; }
 

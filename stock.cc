@@ -7,6 +7,7 @@
 #include <chrono>
 #include <ctime>
 #include <cstdlib>
+#include <iostream>
 
 int mem_allocs = 0;
 

@@ -49,7 +49,7 @@ struct market_data_provider_mic_string
         m_stocks.insert(s);
     }
 
-    void on_price_change(const char* market_ref, int len, double new_price)
+    void on_price_change(const char* market_ref, int /*len*/, double new_price)
     {
         auto& view = m_stocks.get<by_reference>();
 
@@ -126,7 +126,7 @@ struct market_data_provider_umap_string
         m_stocks.emplace(s.market_ref.get(), s);
     }
 
-    void on_price_change(const char* market_ref, int len, double new_price)
+    void on_price_change(const char* market_ref, int /*len*/, double new_price)
     {
         auto it = m_stocks.find(market_ref);
 

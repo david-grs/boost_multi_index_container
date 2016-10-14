@@ -8,5 +8,3 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 include_directories(.)
 add_executable(main main.cc)
-
-target_link_libraries(main papi)

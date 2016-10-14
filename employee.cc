@@ -63,9 +63,19 @@ void composed_index()
     std::cout << it->first_name << std::endl;
 }
 
+void map_multiple_index()
+{
+    using full_name = std::pair<std::string, std::string>;
+    std::map<full_name, employee> m;
+    m[{"x", "y"}] = employee{};
+
+    for (auto&& p : m)
+      std::cout << p.first.first << " " << p.first.second << std::endl;
+}
 
 int main()
 {
+    map_multiple_index();
     simple_index();
     composed_index();
 

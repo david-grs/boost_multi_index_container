@@ -84,7 +84,6 @@ void function_index()
     v.insert({"john", "doe", 21, 2000.0});
 
     auto it = v.find("john doe");
-
     std::cout << it->first_name << std::endl;
 }
 

@@ -21,7 +21,7 @@ struct counter
     const T& get() const { return _t; }
     T& get() { return _t; }
 
-    bool operator==(const counter<T>& c) const { return _t == c._t; }
+    bool operator==(const counter<T, Tag>& c) const { return _t == c._t; }
 
     static void reset()
     {

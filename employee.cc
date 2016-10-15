@@ -40,6 +40,9 @@ void simple_index()
 
     for (auto&& e : v)
       std::cout << e.first_name << std::endl;
+
+    auto it = v.find("john");
+    std::cout << it->first_name << std::endl;
 }
 
 void composed_index()

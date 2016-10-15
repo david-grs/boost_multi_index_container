@@ -4,7 +4,7 @@
 #include <type_traits>
 #include <typeinfo>
 
-template <typename T>
+template <typename T, typename Tag = T>
 struct counter
 {
     template <typename... Args, typename = typename std::enable_if<std::is_constructible<T, Args...>::value>::type>
@@ -44,28 +44,28 @@ private:
     T _t;
 };
 
-template <typename T>
-int counter<T>::ctor = 0;
+template <typename T, typename Tag>
+int counter<T, Tag>::ctor = 0;
 
-template <typename T>
-int counter<T>::dtor = 0;
+template <typename T, typename Tag>
+int counter<T, Tag>::dtor = 0;
 
-template <typename T>
-int counter<T>::copy_ctor = 0;
+template <typename T, typename Tag>
+int counter<T, Tag>::copy_ctor = 0;
 
-template <typename T>
-int counter<T>::copy_assign = 0;
+template <typename T, typename Tag>
+int counter<T, Tag>::copy_assign = 0;
 
-template <typename T>
-int counter<T>::move_ctor = 0;
+template <typename T, typename Tag>
+int counter<T, Tag>::move_ctor = 0;
 
-template <typename T>
-int counter<T>::move_assign = 0;
+template <typename T, typename Tag>
+int counter<T, Tag>::move_assign = 0;
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const counter<T>& a)
+template <typename T, typename Tag>
+std::ostream& operator<<(std::ostream& os, const counter<T, Tag>& a)
 {
-    return os << typeid(T).name() << " ctor=" << a.ctor << " dtor=" << a.dtor << " copy_ctor=" << a.copy_ctor
+    return os << typeid(T).name() << typeid(Tag).name() << " ctor=" << a.ctor << " dtor=" << a.dtor << " copy_ctor=" << a.copy_ctor
                 << " copy_assign=" << a.copy_assign << " move_ctor=" << a.move_ctor << " move_assign=" << a.move_assign;
 }
 
@@ -73,10 +73,10 @@ std::ostream& operator<<(std::ostream& os, const counter<T>& a)
 namespace std
 {
 
-template <typename T>
-struct hash<counter<T>>
+template <typename T, typename Tag>
+struct hash<counter<T, Tag>>
 {
-    std::size_t operator()(const counter<T>& c) const
+    std::size_t operator()(const counter<T, Tag>& c) const
     {
         return typename std::hash<T>()(c.get());
     }

@@ -1,15 +1,14 @@
 #include "counter.h"
 
-#include <string>
-#include <map>
-#include <experimental/string_view>
-
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/composite_key.hpp>
 
+#include <string>
+#include <map>
+#include <experimental/string_view>
 #include <iostream>
 #include <unordered_map>
 

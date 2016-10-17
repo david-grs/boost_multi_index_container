@@ -64,7 +64,7 @@ void simple_index()
     first_name_t::reset();
 
     auto it = v.find(vbuff);
-    std::cout << it->first_name << std::endl;
+    std::cout << "boost.mic lookup " << it->first_name << std::endl;
 }
 
 void copy_key_umap()

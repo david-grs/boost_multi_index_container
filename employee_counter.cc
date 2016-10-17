@@ -9,8 +9,10 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/composite_key.hpp>
+#include <boost/move/move.hpp>
 
 #include <iostream>
+#include <unordered_map>
 
 using namespace boost::multi_index;
 
@@ -53,7 +55,10 @@ void simple_index()
     > employees;
 
     auto&& v = employees.get<by_name>();
-    v.insert({"john", "doe", 21, 2000.0});
+
+    first_name_t::reset();
+    auto p = v.insert({"john", "doe", 21, 2000.0});
+    std::cout << "boost.mic insert " << p.first->first_name << std::endl;
 
     const char* buff = "john";
     std::experimental::string_view vbuff{buff, std::strlen(buff)};
@@ -64,8 +69,18 @@ void simple_index()
     std::cout << it->first_name << std::endl;
 }
 
+void copy_key_umap()
+{
+    std::unordered_map<first_name_t, employee> m;
+
+    first_name_t::reset();
+    auto p = m.emplace("john", employee{"john", "doe", 21, 2000.0});
+    std::cout << "umap insert " << p.first->second.first_name << std::endl;
+}
+
 int main()
 {
     simple_index();
+    copy_key_umap();
     return 0;
 }

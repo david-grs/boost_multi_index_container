@@ -62,7 +62,6 @@ void simple_index()
     std::experimental::string_view vbuff{buff, std::strlen(buff)};
 
     first_name_t::reset();
-
     auto it = v.find(vbuff);
     std::cout << "boost.mic lookup " << it->first_name << std::endl;
 }

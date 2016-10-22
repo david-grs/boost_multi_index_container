@@ -74,7 +74,8 @@ namespace tags
     struct k1 {};
     struct k2 {};
 }
-struct A
+
+struct A : tracker<A>
 {
     A(int i, int j) :
      k(i),
@@ -108,6 +109,8 @@ int main()
     m.insert(A(3, 4));
 
     tracker<key<tags::k1>>::print_instances();
+    tracker<key<tags::k2>>::print_instances();
     tracker<value>::print_instances();
+    tracker<A>::print_instances();
     return 0;
 }

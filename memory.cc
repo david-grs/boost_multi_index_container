@@ -33,7 +33,7 @@ struct tracker
 
     static void print_instances()
     {
-        std::cout << s_objects.size() << " instances:" << std::endl;
+        std::cout << s_objects.size() << " " << typeid(T).name() << " instances:" << std::endl;
         for (auto&& obj : s_objects)
             std::cout << "  " << obj << std::endl;
     }
@@ -45,7 +45,8 @@ private:
 template <typename T>
 std::unordered_set<void*> tracker<T>::s_objects;
 
-struct key : tracker<key>
+template <typename Tag>
+struct key : tracker<key<Tag>>
 {
     explicit key(int k) : _k(k) {}
     bool operator==(const key& rhs) const { return _k == rhs._k; }
@@ -61,12 +62,18 @@ struct value : tracker<value>
 
 namespace std {
     template <>
-    struct hash<key>
+    template <typename Tag>
+    struct hash<key<Tag>>
     {
-        size_t operator()(const key& rhs) const { return hash<int>()(rhs._k); }
+        size_t operator()(const key<Tag>& rhs) const { return hash<int>()(rhs._k); }
     };
 }
 
+namespace tags
+{
+    struct k1 {};
+    struct k2 {};
+}
 struct A
 {
     A(int i, int j) :
@@ -75,8 +82,8 @@ struct A
      v(j)
     {}
 
-    key k;
-    key k2;
+    key<tags::k1> k;
+    key<tags::k2> k2;
     value v;
 };
 
@@ -86,12 +93,12 @@ int main()
       A,
       indexed_by<
         hashed_unique<
-          BOOST_MULTI_INDEX_MEMBER(A, key, k),
-          std::hash<key>
+          BOOST_MULTI_INDEX_MEMBER(A, key<tags::k1>, k),
+          std::hash<key<tags::k1>>
         >,
         hashed_unique<
-          BOOST_MULTI_INDEX_MEMBER(A, key, k2),
-          std::hash<key>
+          BOOST_MULTI_INDEX_MEMBER(A, key<tags::k2>, k2),
+          std::hash<key<tags::k2>>
         >
       >
     > m;
@@ -100,7 +107,7 @@ int main()
     m.insert(A(2, 3));
     m.insert(A(3, 4));
 
-    tracker<key>::print_instances();
+    tracker<key<tags::k1>>::print_instances();
     tracker<value>::print_instances();
     return 0;
 }

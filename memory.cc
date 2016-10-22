@@ -28,8 +28,8 @@ struct tracker
     ~tracker()
     {
         int deleted = s_objects.erase(this);
-        if (deleted != 1)
-            throw std::runtime_error("~tracker");
+        assert(deleted);
+        (void)deleted;
     }
 
     static void print_instances()

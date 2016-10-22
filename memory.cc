@@ -28,7 +28,14 @@ struct tracker
     ~tracker()
     {
         int deleted = s_objects.erase(this);
-        assert(deleted == 1);
+        assert(deleted);
+    }
+
+    static void print_instances()
+    {
+        std::cout << s_objects.size() << " instances:" << std::endl;
+        for (auto&& obj : s_objects)
+            std::cout << "  " << obj << std::endl;
     }
 
 private:
@@ -67,4 +74,16 @@ namespace std {
 
 int main()
 {
+    {
+        key k(1);
+        tracker<key>::print_instances();
+    }
+    key k1(1);
+    key k2(k1);
+    {
+        key k3(1);
+        tracker<key>::print_instances();
+    }
+    tracker<key>::print_instances();
+
 }

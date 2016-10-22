@@ -63,7 +63,7 @@ namespace std {
     template <>
     struct hash<key>
     {
-        size_t operator()(const key& rhs) { return hash<int>()(rhs._k); }
+        size_t operator()(const key& rhs) const { return hash<int>()(rhs._k); }
     };
 }
 
@@ -84,11 +84,15 @@ int main()
       A,
       indexed_by<
         hashed_unique<
-          BOOST_MULTI_INDEX_MEMBER(A, key, k)
+          BOOST_MULTI_INDEX_MEMBER(A, key, k),
+          std::hash<key>
         >
       >
     > m;
-    //m.insert(A(1, 2));
+    A a(1,2);
+    m.insert(a);
+
+//    m.insert(A(1, 2));
     //m.insert(A(2, 3));
     return 0;
 }

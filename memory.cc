@@ -89,10 +89,12 @@ int main()
         >
       >
     > m;
-    A a(1,2);
-    m.insert(a);
 
-//    m.insert(A(1, 2));
-    //m.insert(A(2, 3));
+    m.insert(A(1, 2));
+    m.insert(A(2, 3));
+    m.insert(A(3, 4));
+
+    tracker<key>::print_instances();
+    tracker<value>::print_instances();
     return 0;
 }

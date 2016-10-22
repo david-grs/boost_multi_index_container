@@ -54,10 +54,10 @@ struct key : tracker<key>
 
 struct value : tracker<value>
 {
-    explicit value(int k) : _k(k) {}
-    bool operator==(const value& rhs) const { return _k == rhs._k; }
-    int _k;
+    explicit value(int v) : _v(v) {}
+    int _v;
 };
+
 
 namespace std {
     template <>
@@ -65,25 +65,30 @@ namespace std {
     {
         size_t operator()(const key& rhs) { return hash<int>()(rhs._k); }
     };
-    template <>
-    struct hash<value>
-    {
-        size_t operator()(const value& rhs) { return hash<int>()(rhs._k); }
-    };
 }
+
+struct A
+{
+    A(int i, int j) :
+     k(i),
+     v(j)
+    {}
+
+    key k;
+    value v;
+};
 
 int main()
 {
-    {
-        key k(1);
-        tracker<key>::print_instances();
-    }
-    key k1(1);
-    key k2(k1);
-    {
-        key k3(1);
-        tracker<key>::print_instances();
-    }
-    tracker<key>::print_instances();
-
+    boost::multi_index_container<
+      A,
+      indexed_by<
+        hashed_unique<
+          BOOST_MULTI_INDEX_MEMBER(A, key, k)
+        >
+      >
+    > m;
+    //m.insert(A(1, 2));
+    //m.insert(A(2, 3));
+    return 0;
 }

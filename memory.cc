@@ -71,10 +71,12 @@ struct A
 {
     A(int i, int j) :
      k(i),
+     k2(i),
      v(j)
     {}
 
     key k;
+    key k2;
     value v;
 };
 
@@ -85,6 +87,10 @@ int main()
       indexed_by<
         hashed_unique<
           BOOST_MULTI_INDEX_MEMBER(A, key, k),
+          std::hash<key>
+        >,
+        hashed_unique<
+          BOOST_MULTI_INDEX_MEMBER(A, key, k2),
           std::hash<key>
         >
       >

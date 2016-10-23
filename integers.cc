@@ -36,7 +36,7 @@ int main()
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> rng(0, 1e6);
-    volatile int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
+    volatile int x = 0; // its only reason is to avoid the compiler to optimize lookups
 
     {
         boost::multi_index_container<
@@ -61,7 +61,10 @@ int main()
 
         auto&& h = mic.get<tags::unordered>();
         benchmark([&]() { mic.insert(rng(gen)); }, "boost.mic insert");
-        benchmark([&]() { found += h.find(rng(gen)) != h.end(); }, "boost.mic lookup");
+        benchmark([&]() { x += h.find(rng(gen)) != h.end(); }, "boost.mic lookup");
+        auto&& asc = mic.get<tags::asc>();
+        auto it = asc.begin();
+        benchmark([&]() { if (it != asc.end()) { x += *it; ++it; } }, "boost.mic cross");
         benchmark([&]() { mic.erase(rng(gen)); }, "boost.mic erase");
     }
 
@@ -78,7 +81,9 @@ int main()
             h.insert(n);
         }, "std::containers insert");
 
-        benchmark([&]() { found += h.find(rng(gen)) != h.end(); }, "std::containers lookup");
+        benchmark([&]() { x += h.find(rng(gen)) != h.end(); }, "std::containers lookup");
+        auto it = asc.begin();
+        benchmark([&]() { if (it != asc.end()) { x += *it; ++it; } }, "std::containers cross");
         benchmark([&]()
         {
             int n = rng(gen);

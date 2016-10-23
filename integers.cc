@@ -6,6 +6,7 @@
 #include <iostream>
 #include <random>
 #include <chrono>
+#include <set>
 
 namespace tags {
 struct asc {};
@@ -58,6 +59,19 @@ int main()
     }
 
     {
+        std::set<int> asc;
+        std::set<int> desc;
+
+        benchmark([&]()
+        {
+            int n = rng(gen);
+            asc.insert(n);
+            desc.insert(n);
+        });
+
+        int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
+        benchmark([&]() { found += asc.find(rng(gen)) != asc.end(); });
+        std::cout << found << std::endl;
     }
 
 

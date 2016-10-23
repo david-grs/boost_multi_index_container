@@ -145,9 +145,11 @@ struct market_data_provider_umap_string_view
 {
     static const char* name() { return "unordered_map<string_view>"; }
 
-    void add_stock(const stock& s)
+    void add_stock(const stock& ss)
     {
-        m_stocks.insert({{s.market_ref.get().c_str(), s.market_ref.get().size()}, s});
+        stock s(ss);
+        std::experimental::string_view sv{s.market_ref.get().c_str(), s.market_ref.get().size()};
+        m_stocks.emplace(sv, std::move(s));
     }
 
     void on_price_change(const char* market_ref, int len, double new_price)

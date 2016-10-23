@@ -69,8 +69,8 @@ int main()
     }
 
     {
-        std::set<int> asc;
-        std::set<int> desc;
+        std::set<int, std::less<int>> asc;
+        std::set<int, std::greater<int>> desc;
         std::unordered_set<int> h;
 
         benchmark([&]()

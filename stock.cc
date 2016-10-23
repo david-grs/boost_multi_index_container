@@ -56,12 +56,26 @@ int main(int argc, char** argv)
 
     load_file(argv[1], [&](const std::string& ref, double price)
     {
-        mdp_mic_string.add_stock(stock{ref, ref, price, 100});
-        mdp_mic_string_view.add_stock(stock{ref, ref, price, 100});
-        mdp_umap_string.add_stock(stock{ref, ref, price, 100});
-        mdp_umap_string_view.add_stock(stock{ref, ref, price, 100});
-        stocks.push_back({ref, ref, price, 100});
+        stocks.emplace_back(ref, ref, price, 100);
     });
+
+    auto benchmark_insert = [&](auto&& market_data_provider)
+    {
+        mem_allocs = 0;
+        counter<std::string>::reset();
+        counter<std::experimental::string_view>::reset();
+
+        auto start = std::chrono::steady_clock::now();
+
+        static const int Iterations = 1e4;
+        for (auto&& stock : stocks)
+            market_data_provider.add_stock(stock);
+
+        auto end = std::chrono::steady_clock::now();
+        std::cout << "insert: " << market_data_provider.name() << " --- mem allocs: " << mem_allocs
+                  << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - "
+                  << counter<std::string>() << " - " << counter<std::string>() << std::endl;
+    };
 
     auto benchmark_lookup = [&](auto&& market_data_provider)
     {
@@ -79,10 +93,15 @@ int main(int argc, char** argv)
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::cout << market_data_provider.name() << " --- mem allocs: " << mem_allocs
+        std::cout << "lookup: " << market_data_provider.name() << " --- mem allocs: " << mem_allocs
                   << " - time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " - "
                   << counter<std::string>() << " - " << counter<std::string>() << std::endl;
     };
+
+    benchmark_insert(mdp_mic_string);
+    benchmark_insert(mdp_mic_string_view);
+    benchmark_insert(mdp_umap_string);
+    benchmark_insert(mdp_umap_string_view);
 
     benchmark_lookup(mdp_mic_string);
     benchmark_lookup(mdp_mic_string_view);

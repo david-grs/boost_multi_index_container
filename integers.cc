@@ -8,6 +8,7 @@
 #include <random>
 #include <chrono>
 #include <set>
+#include <unordered_set>
 
 namespace tags {
 struct asc {};
@@ -67,21 +68,24 @@ int main()
     {
         std::set<int> asc;
         std::set<int> desc;
+        std::unordered_set<int> h;
 
         benchmark([&]()
         {
             int n = rng(gen);
             asc.insert(n);
             desc.insert(n);
-        }, "std::set insert");
+            h.insert(n);
+        }, "std::containers insert");
 
-        benchmark([&]() { found += asc.find(rng(gen)) != asc.end(); }, "std::set lookup");
+        benchmark([&]() { found += h.find(rng(gen)) != h.end(); }, "std::containers lookup");
         benchmark([&]()
         {
             int n = rng(gen);
             asc.erase(n);
             desc.erase(n);
-        }, "std::set erase");
+            h.erase(n);
+        }, "std::containers erase");
     }
 
 

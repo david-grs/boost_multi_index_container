@@ -1,6 +1,7 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/composite_key.hpp>
 
@@ -8,6 +9,39 @@
 #include <unordered_set>
 
 using namespace boost::multi_index;
+
+void* operator new(std::size_t n)
+{
+    void* p = malloc(n);
+    std::cout << "allocating " << n << " bytes at " << p << std::endl;
+    return p;
+}
+void* operator new[](std::size_t n)
+{
+    void* p = malloc(n);
+    std::cout << "allocating " << n << " bytes at " << p << std::endl;
+    return p;
+}
+void operator delete(void* p)
+{
+    std::cout << "deleting " << p << std::endl;
+    return free(p);
+}
+void operator delete(void* p, std::size_t n)
+{
+    std::cout << "deleting " << n << " bytes at " << p << std::endl;
+    return free(p);
+}
+void operator delete[](void* p)
+{
+    std::cout << "deleting " << p << std::endl;
+    return free(p);
+}
+void operator delete[](void* p, std::size_t n)
+{
+    std::cout << "deleting " << n << " bytes at " << p << std::endl;
+    return free(p);
+}
 
 template <typename T>
 struct tracker
@@ -81,12 +115,13 @@ struct A : tracker<A>
     A(int i, int j) :
      k(i),
      k2(i),
-     v(j)
+     v(j), _i(i)
     {}
 
     key<tags::k1> k;
     key<tags::k2> k2;
     value v;
+    int _i;
 };
 
 int main()
@@ -98,16 +133,23 @@ int main()
           member<A, key<tags::k1>, &A::k>,
           std::hash<key<tags::k1>>
         >,
-        hashed_unique<
+        hashed_non_unique<
           member<A, key<tags::k2>, &A::k2>,
           std::hash<key<tags::k2>>
+        >,
+        ordered_unique<
+          member<A, int, &A::_i>
         >
       >
     > m;
 
-    m.insert(A(1, 2));
+    A a(1, 2);
+    m.insert(std::move(a));
+
+
+    std::cout << " start " << std::endl;
     m.insert(A(2, 3));
-    m.insert(A(3, 4));
+    std::cout << " stop" << std::endl;
 
     tracker<key<tags::k1>>::print_instances();
     tracker<key<tags::k2>>::print_instances();

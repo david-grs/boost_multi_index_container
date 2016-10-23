@@ -17,7 +17,7 @@ using namespace boost::multi_index;
 
 int main()
 {
-    auto benchmark = [](auto&& operation)
+    auto benchmark = [](auto&& operation, const char* desc)
     {
         static const int Iterations = 1e6;
 
@@ -26,36 +26,35 @@ int main()
             operation();
         auto end = std::chrono::steady_clock::now();
 
-        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+        std::cout << desc << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
     };
 
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> rng;
+    std::uniform_int_distribution<> rng(0, 1e6);
+    volatile int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
 
     {
         boost::multi_index_container<
-        int,
-        indexed_by<
+          int,
+          indexed_by<
             ordered_unique<
-            tag<tags::asc>,
-            identity<int>,
-            std::less<int>
+              tag<tags::asc>,
+              identity<int>,
+              std::less<int>
             >,
             ordered_unique<
-            tag<tags::desc>,
-            identity<int>,
-            std::greater<int>
+              tag<tags::desc>,
+              identity<int>,
+              std::greater<int>
             >
-        >
+          >
         > mic;
 
-        benchmark([&]() { mic.insert(rng(gen)); });
-
-        int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
-        benchmark([&]() { found += mic.find(rng(gen)) != mic.end(); });
-        std::cout << found << std::endl;
+        benchmark([&]() { mic.insert(rng(gen)); }, "boost.mic insert");
+        benchmark([&]() { found += mic.find(rng(gen)) != mic.end(); }, "boost.mic lookup");
+        benchmark([&]() { mic.erase(rng(gen)); }, "boost.mic erase");
     }
 
     {
@@ -67,11 +66,15 @@ int main()
             int n = rng(gen);
             asc.insert(n);
             desc.insert(n);
-        });
+        }, "std::set insert");
 
-        int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
-        benchmark([&]() { found += asc.find(rng(gen)) != asc.end(); });
-        std::cout << found << std::endl;
+        benchmark([&]() { found += asc.find(rng(gen)) != asc.end(); }, "std::set lookup");
+        benchmark([&]()
+        {
+            int n = rng(gen);
+            asc.erase(n);
+            desc.erase(n);
+        }, "std::set erase");
     }
 
 

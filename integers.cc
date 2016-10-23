@@ -32,32 +32,29 @@ int main()
       >
     > mic;
 
-    auto benchmark_op = [](auto&& m, auto&& operation)
+    auto benchmark = [](auto&& operation)
     {
         static const int Iterations = 1e6;
 
         auto start = std::chrono::steady_clock::now();
         for (int i = 0; i < Iterations; ++i)
-            operation(m);
+            operation();
         auto end = std::chrono::steady_clock::now();
 
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
     };
 
-    auto benchmark = [benchmark_op](auto&& m)
-    {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> rng;
 
-        benchmark_op(m, [&](auto&& m) { m.insert(rng(gen)); });
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> rng;
 
-        int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
-        benchmark_op(m, [&](auto&& m) { found += m.find(rng(gen)) != m.end(); });
-        std::cout << found << std::endl;
-    };
+    benchmark([&]() { mic.insert(rng(gen)); });
 
-    benchmark(mic);
+    int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
+    benchmark([&]() { found += mic.find(rng(gen)) != mic.end(); });
+    std::cout << found << std::endl;
+
 
 #if 0
     auto&& v = m.get<tags::desc>();

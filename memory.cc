@@ -95,11 +95,11 @@ int main()
       A,
       indexed_by<
         hashed_unique<
-          BOOST_MULTI_INDEX_MEMBER(A, key<tags::k1>, k),
+          member<A, key<tags::k1>, &A::k>,
           std::hash<key<tags::k1>>
         >,
         hashed_unique<
-          BOOST_MULTI_INDEX_MEMBER(A, key<tags::k2>, k2),
+          member<A, key<tags::k2>, &A::k2>,
           std::hash<key<tags::k2>>
         >
       >

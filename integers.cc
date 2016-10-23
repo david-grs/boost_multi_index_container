@@ -32,10 +32,6 @@ int main()
       >
     > mic;
 
-    std::random_device rd; //container
-    std::mt19937 gen(rd()); //ruleset for rd(merzenne twister)
-    std::uniform_int_distribution<> rng;
-
     auto benchmark_op = [](auto&& m, auto&& operation)
     {
         static const int Iterations = 1e6;
@@ -48,13 +44,20 @@ int main()
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
     };
 
+    auto benchmark = [benchmark_op](auto&& m)
+    {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> rng;
 
-    benchmark_op(mic, [&](auto&& m) { m.insert(rng(gen)); });
+        benchmark_op(m, [&](auto&& m) { m.insert(rng(gen)); });
 
-    int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
-    benchmark_op(mic, [&](auto&& m) { found += m.find(rng(gen)) != m.end(); });
+        int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
+        benchmark_op(m, [&](auto&& m) { found += m.find(rng(gen)) != m.end(); });
+        std::cout << found << std::endl;
+    };
 
-    std::cout << found << std::endl;
+    benchmark(mic);
 
 #if 0
     auto&& v = m.get<tags::desc>();

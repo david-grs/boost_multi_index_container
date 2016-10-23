@@ -5,6 +5,7 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index/random_access_index.hpp>
 
 #include <boost/container/static_vector.hpp>
 
@@ -159,7 +160,7 @@ int main()
         ordered_unique<
           member<A, int, &A::_i>
         >,
-        sequenced<>
+        random_access<>
       >
     > m;
 

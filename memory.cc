@@ -5,41 +5,55 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/composite_key.hpp>
 
+#include <boost/container/static_vector.hpp>
+
 #include <iostream>
 #include <unordered_set>
 
 using namespace boost::multi_index;
 
+boost::container::static_vector<std::pair<void*, int>, 256> sv;
+
 void* operator new(std::size_t n)
 {
     void* p = malloc(n);
-    std::cout << "allocating " << n << " bytes at " << p << std::endl;
+    sv.emplace_back(p, n);
+//    std::cout << "allocating " << n << " bytes at " << p << std::endl;
     return p;
 }
 void* operator new[](std::size_t n)
 {
     void* p = malloc(n);
-    std::cout << "allocating " << n << " bytes at " << p << std::endl;
+    sv.emplace_back(p, n);
+   // std::cout << "allocating " << n << " bytes at " << p << std::endl;
     return p;
 }
 void operator delete(void* p)
 {
-    std::cout << "deleting " << p << std::endl;
+  //  std::cout << "deleting " << p << std::endl;
+    auto it = std::find_if(sv.begin(), sv.end(), [&](auto&& pair) { return pair.first == p; });
+    sv.erase(it);
     return free(p);
 }
 void operator delete(void* p, std::size_t n)
 {
-    std::cout << "deleting " << n << " bytes at " << p << std::endl;
+  //  std::cout << "deleting " << n << " bytes at " << p << std::endl;
+    auto it = std::find_if(sv.begin(), sv.end(), [&](auto&& pair) { return pair.first == p && pair.second == n; });
+    sv.erase(it);
     return free(p);
 }
 void operator delete[](void* p)
 {
-    std::cout << "deleting " << p << std::endl;
+  //  std::cout << "deleting " << p << std::endl;
+    auto it = std::find_if(sv.begin(), sv.end(), [&](auto&& pair) { return pair.first == p; });
+    sv.erase(it);
     return free(p);
 }
 void operator delete[](void* p, std::size_t n)
 {
-    std::cout << "deleting " << n << " bytes at " << p << std::endl;
+    //std::cout << "deleting " << n << " bytes at " << p << std::endl;
+    auto it = std::find_if(sv.begin(), sv.end(), [&](auto&& pair) { return pair.first == p && pair.second == n; });
+    sv.erase(it);
     return free(p);
 }
 
@@ -147,9 +161,13 @@ int main()
     m.insert(std::move(a));
 
 
+    sv.clear();
     std::cout << " start " << std::endl;
     m.insert(A(2, 3));
     std::cout << " stop" << std::endl;
+
+    for (auto&& s: sv)
+        std::cout << s.first << " " << s.second << std::endl;
 
     tracker<key<tags::k1>>::print_instances();
     tracker<key<tags::k2>>::print_instances();

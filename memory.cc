@@ -33,28 +33,32 @@ void operator delete(void* p)
 {
   //  std::cout << "deleting " << p << std::endl;
     auto it = std::find_if(sv.begin(), sv.end(), [&](auto&& pair) { return pair.first == p; });
-    sv.erase(it);
+    if (it != sv.end())
+        sv.erase(it);
     return free(p);
 }
 void operator delete(void* p, std::size_t n)
 {
   //  std::cout << "deleting " << n << " bytes at " << p << std::endl;
     auto it = std::find_if(sv.begin(), sv.end(), [&](auto&& pair) { return pair.first == p && pair.second == n; });
-    sv.erase(it);
+    if (it != sv.end())
+        sv.erase(it);
     return free(p);
 }
 void operator delete[](void* p)
 {
   //  std::cout << "deleting " << p << std::endl;
     auto it = std::find_if(sv.begin(), sv.end(), [&](auto&& pair) { return pair.first == p; });
-    sv.erase(it);
+    if (it != sv.end())
+        sv.erase(it);
     return free(p);
 }
 void operator delete[](void* p, std::size_t n)
 {
     //std::cout << "deleting " << n << " bytes at " << p << std::endl;
     auto it = std::find_if(sv.begin(), sv.end(), [&](auto&& pair) { return pair.first == p && pair.second == n; });
-    sv.erase(it);
+    if (it != sv.end())
+        sv.erase(it);
     return free(p);
 }
 

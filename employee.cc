@@ -29,7 +29,7 @@ void simple_index()
       indexed_by<
         hashed_unique<
           tag<by_name>,
-          BOOST_MULTI_INDEX_MEMBER(employee, std::string, first_name)
+          member<employee, std::string, &employee::first_name>
         >
       >
     > employees;
@@ -53,8 +53,8 @@ void composed_index()
           tag<by_name>,
           composite_key<
             employee,
-            BOOST_MULTI_INDEX_MEMBER(employee, std::string, first_name),
-            BOOST_MULTI_INDEX_MEMBER(employee, std::string, last_name)
+            member<employee, std::string, &employee::first_name>,
+            member<employee, std::string, &employee::last_name>
           >
         >
       >
@@ -74,7 +74,7 @@ void function_index()
       indexed_by<
         hashed_unique<
           tag<by_name>,
-          BOOST_MULTI_INDEX_CONST_MEM_FUN(employee, std::string, full_name)
+          const_mem_fun<employee, std::string, &employee::full_name>
         >
       >
     > employees;

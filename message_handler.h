@@ -71,7 +71,7 @@ private:
       indexed_by<
         hashed_unique<
           tag<by_reference>,
-          BOOST_MULTI_INDEX_MEMBER(stock, counter<std::string>, market_ref),
+          member<stock, counter<std::string>, &stock::market_ref>,
           std::hash<counter<std::string>>
         >
       >
@@ -109,7 +109,7 @@ private:
       indexed_by<
         hashed_unique<
           tag<by_reference_view>,
-          BOOST_MULTI_INDEX_MEMBER(stock, counter<std::experimental::string_view>, market_ref_view),
+          member<stock, counter<std::experimental::string_view>, &stock::market_ref_view>,
           std::hash<counter<std::experimental::string_view>>
         >
       >

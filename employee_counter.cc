@@ -46,7 +46,7 @@ void simple_index()
       indexed_by<
         hashed_unique<
           tag<by_name>,
-          BOOST_MULTI_INDEX_CONST_MEM_FUN(employee, std::experimental::string_view, first_name_view),
+          const_mem_fun<employee, std::experimental::string_view, &employee::first_name_view>,
           std::hash<std::experimental::string_view>
         >
       >

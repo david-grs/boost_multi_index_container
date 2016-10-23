@@ -67,7 +67,6 @@ int main(int argc, char** argv)
 
         auto start = std::chrono::steady_clock::now();
 
-        static const int Iterations = 1e4;
         for (auto&& stock : stocks)
             market_data_provider.add_stock(stock);
 

@@ -16,22 +16,6 @@ using namespace boost::multi_index;
 
 int main()
 {
-    boost::multi_index_container<
-      int,
-      indexed_by<
-        ordered_unique<
-          tag<tags::asc>,
-          identity<int>,
-          std::less<int>
-        >,
-        ordered_unique<
-          tag<tags::desc>,
-          identity<int>,
-          std::greater<int>
-        >
-      >
-    > mic;
-
     auto benchmark = [](auto&& operation)
     {
         static const int Iterations = 1e6;
@@ -49,11 +33,32 @@ int main()
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> rng;
 
-    benchmark([&]() { mic.insert(rng(gen)); });
+    {
+        boost::multi_index_container<
+        int,
+        indexed_by<
+            ordered_unique<
+            tag<tags::asc>,
+            identity<int>,
+            std::less<int>
+            >,
+            ordered_unique<
+            tag<tags::desc>,
+            identity<int>,
+            std::greater<int>
+            >
+        >
+        > mic;
 
-    int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
-    benchmark([&]() { found += mic.find(rng(gen)) != mic.end(); });
-    std::cout << found << std::endl;
+        benchmark([&]() { mic.insert(rng(gen)); });
+
+        int found = 0; // its only reason is to avoid the compiler to optimize all the lookups
+        benchmark([&]() { found += mic.find(rng(gen)) != mic.end(); });
+        std::cout << found << std::endl;
+    }
+
+    {
+    }
 
 
 #if 0

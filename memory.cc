@@ -4,6 +4,7 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/composite_key.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
 
 #include <boost/container/static_vector.hpp>
 
@@ -153,21 +154,34 @@ int main()
         >,
         ordered_unique<
           member<A, int, &A::_i>
-        >
+        >,
+        sequenced<>
       >
     > m;
 
     A a(1, 2);
-    m.insert(std::move(a));
+    m.insert(A(1,2));
+    m.insert(A(2,2));
+    m.insert(A(3,2));
+    m.insert(A(4,2));
+    m.insert(A(5,2));
 
 
     sv.clear();
     std::cout << " start " << std::endl;
-    m.insert(A(2, 3));
+    m.insert(A(0x00f00ba3, 0x00f00ba3));
+    m.insert(A(0xdeadbeef, 0xdeadbeef));
     std::cout << " stop" << std::endl;
 
     for (auto&& s: sv)
+    {
         std::cout << s.first << " " << s.second << std::endl;
+
+        int64_t* p = (int64_t*)s.first;
+        for (; p < s.first + s.second; ++p)
+            std::cout << "    " << (void*)*p;
+        std::cout << std::endl;
+    }
 
     tracker<key<tags::k1>>::print_instances();
     tracker<key<tags::k2>>::print_instances();

@@ -1,6 +1,7 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/hashed_index.hpp>
 
 #include <algorithm>
 #include <iostream>
@@ -11,6 +12,7 @@
 namespace tags {
 struct asc {};
 struct desc {};
+struct unordered {};
 }
 
 using namespace boost::multi_index;
@@ -48,12 +50,17 @@ int main()
               tag<tags::desc>,
               identity<int>,
               std::greater<int>
+            >,
+            hashed_unique<
+              tag<tags::unordered>,
+              identity<int>
             >
           >
         > mic;
 
+        auto&& h = mic.get<tags::unordered>();
         benchmark([&]() { mic.insert(rng(gen)); }, "boost.mic insert");
-        benchmark([&]() { found += mic.find(rng(gen)) != mic.end(); }, "boost.mic lookup");
+        benchmark([&]() { found += h.find(rng(gen)) != h.end(); }, "boost.mic lookup");
         benchmark([&]() { mic.erase(rng(gen)); }, "boost.mic erase");
     }
 

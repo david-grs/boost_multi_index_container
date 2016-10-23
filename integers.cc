@@ -93,11 +93,5 @@ int main()
         }, "std::containers erase");
     }
 
-
-#if 0
-    auto&& v = m.get<tags::desc>();
-
-    for (auto&& i : v)
-        std::cout << i << std::endl;
-#endif
+    return 0;
 }

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <chrono>
 
 namespace tags {
 struct asc {};
@@ -29,16 +30,30 @@ int main()
           std::greater<int>
         >
       >
-    > m;
+    > mic;
 
     std::random_device rd; //container
     std::mt19937 gen(rd()); //ruleset for rd(merzenne twister)
     std::uniform_int_distribution<> rng;
 
+    auto benchmark_insert = [&](auto&& m)
+    {
+        static const int Iterations = 1e6;
 
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < Iterations; ++i)
+            m.insert(rng(gen));
+        auto end = std::chrono::steady_clock::now();
+
+        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+    };
+
+    benchmark_insert(mic);
+
+#if 0
     auto&& v = m.get<tags::desc>();
 
     for (auto&& i : v)
         std::cout << i << std::endl;
-
+#endif
 }

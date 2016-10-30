@@ -12,8 +12,11 @@
 #include <iostream>
 #include <unordered_set>
 
+#include <mtrace>
+
 using namespace boost::multi_index;
 
+#if 0
 boost::container::static_vector<std::pair<void*, int>, 256> sv;
 
 void* operator new(std::size_t n)
@@ -62,6 +65,7 @@ void operator delete[](void* p, std::size_t n)
         sv.erase(it);
     return free(p);
 }
+#endif
 
 template <typename T>
 struct tracker
@@ -171,12 +175,22 @@ int main()
     m.insert(A(4,2));
     m.insert(A(5,2));
 
-
+#if 0
     sv.clear();
-    std::cout << " start " << std::endl;
-    m.insert(A(0x00f00ba3, 0x00f00ba3));
-    m.insert(A(0xdeadbeef, 0xdeadbeef));
-    std::cout << " stop" << std::endl;
+#endif
+
+    {
+        std::cout << "start" << std::endl;
+        mtrace mt;
+        auto p = m.insert(A(0x00f00ba3, 0x00f00ba3)).first;
+        std::cout << " elem = " << &(*p) << std::endl;
+
+        p = m.insert(A(0xdeadbeef, 0xdeadbeef)).first;
+        std::cout << " elem = " << &(*p) << std::endl;
+        std::cout << "stop" << std::endl;
+    }
+
+#if 0
 
     for (auto&& s: sv)
     {
@@ -187,6 +201,7 @@ int main()
             std::cout << "    " << (void*)*p;
         std::cout << std::endl;
     }
+#endif
 
     tracker<key<tags::k1>>::print_instances();
     tracker<key<tags::k2>>::print_instances();

@@ -59,12 +59,20 @@ int main()
           >
         > mic;
 
-        auto&& h = mic.get<tags::unordered>();
         benchmark([&]() { mic.insert(rng(gen)); }, "boost.mic insert");
+
+        auto&& h = mic.get<tags::unordered>();
         benchmark([&]() { x += h.find(rng(gen)) != h.end(); }, "boost.mic lookup");
+
         auto&& asc = mic.get<tags::asc>();
         auto it = asc.begin();
-        benchmark([&]() { if (it != asc.end()) { x += *it; ++it; } }, "boost.mic cross");
+        benchmark([&]()
+        {
+            if (it == asc.end())
+                it = asc.begin();
+            x += *it;
+            ++it;
+        }, "boost.mic walk");
         benchmark([&]() { mic.erase(rng(gen)); }, "boost.mic erase");
     }
 
@@ -79,11 +87,17 @@ int main()
             asc.insert(n);
             desc.insert(n);
             h.insert(n);
-        }, "std::containers insert");
+        }, "std::sets insert");
 
         benchmark([&]() { x += h.find(rng(gen)) != h.end(); }, "std::containers lookup");
         auto it = asc.begin();
-        benchmark([&]() { if (it != asc.end()) { x += *it; ++it; } }, "std::containers cross");
+        benchmark([&]()
+        {
+            if (it == asc.end())
+                it = asc.begin();
+            x += *it;
+            ++it;
+        }, "std::set walk");
         benchmark([&]()
         {
             int n = rng(gen);

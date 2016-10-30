@@ -34,7 +34,9 @@ int main()
 
 
     std::random_device rd;
-    std::mt19937 gen(rd());
+    auto seed = rd();
+
+    std::mt19937 gen(seed);
     std::uniform_int_distribution<> rng(0, 1e6);
     volatile int x = 0; // its only reason is to avoid the compiler to optimize lookups
 
@@ -75,6 +77,9 @@ int main()
         }, "boost.mic walk");
         benchmark([&]() { mic.erase(rng(gen)); }, "boost.mic erase");
     }
+
+    // we use the same range of integers for the 2 tests
+    gen.seed(seed);
 
     {
         std::set<int, std::less<int>> asc;

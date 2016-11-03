@@ -11,9 +11,45 @@
 #include <unordered_set>
 
 namespace tags {
-struct asc {};
-struct desc {};
-struct unordered {};
+struct x_asc {};
+struct y_asc {};
+struct x_unordered {};
+}
+
+struct A
+{
+    A(int _x, int _y) :
+      x(_x), y(_y)
+    {}
+
+    bool operator==(const A& a) const { return x == a.x && y == a.y; }
+
+    int x;
+    int y;
+};
+
+struct CompX
+{
+    bool operator()(const A& lhs, const A& rhs) const { return lhs.x < rhs.x; }
+};
+
+struct CompY
+{
+    bool operator()(const A& lhs, const A& rhs) const { return lhs.y < rhs.y; }
+};
+
+namespace std
+{
+
+template <>
+struct hash<A>
+{
+    std::size_t operator()(const A& a) const
+    {
+        return std::hash<int>()(a.x);
+    }
+};
+
 }
 
 using namespace boost::multi_index;
@@ -42,73 +78,73 @@ int main()
 
     {
         boost::multi_index_container<
-          int,
+          A,
           indexed_by<
             ordered_unique<
-              tag<tags::asc>,
-              identity<int>,
+              tag<tags::x_asc>,
+              member<A, int, &A::x>,
               std::less<int>
             >,
             ordered_unique<
-              tag<tags::desc>,
-              identity<int>,
+              tag<tags::y_asc>,
+              member<A, int, &A::y>,
               std::greater<int>
             >,
             hashed_unique<
-              tag<tags::unordered>,
-              identity<int>
+              tag<tags::x_unordered>,
+              member<A, int, &A::x>
             >
           >
         > mic;
 
-        benchmark([&]() { mic.insert(rng(gen)); }, "boost.mic insert");
+        benchmark([&]() { mic.emplace(rng(gen), rng(gen)); }, "boost.mic insert");
 
-        auto&& h = mic.get<tags::unordered>();
+        auto&& h = mic.get<tags::x_unordered>();
         benchmark([&]() { x += h.find(rng(gen)) != h.end(); }, "boost.mic lookup");
 
-        auto&& asc = mic.get<tags::asc>();
+        auto&& asc = mic.get<tags::x_asc>();
         auto it = asc.begin();
         benchmark([&]()
         {
             if (it == asc.end())
                 it = asc.begin();
-            x += *it;
+            x += it->x;
             ++it;
         }, "boost.mic walk");
-        benchmark([&]() { mic.erase(rng(gen)); }, "boost.mic erase");
+        benchmark([&]() { h.erase(rng(gen)); }, "boost.mic erase");
     }
 
     // we use the same range of integers for the 2 tests
     gen.seed(seed);
 
     {
-        std::set<int, std::less<int>> asc;
-        std::set<int, std::greater<int>> desc;
-        std::unordered_set<int> h;
+        std::set<A, CompX> asc;
+        std::set<A, CompY> desc;
+        std::unordered_set<A> h;
 
         benchmark([&]()
         {
-            int n = rng(gen);
-            asc.insert(n);
-            desc.insert(n);
-            h.insert(n);
+            A a{rng(gen), rng(gen)};
+            asc.insert(a);
+            desc.insert(a);
+            h.insert(a);
         }, "std::sets insert");
 
-        benchmark([&]() { x += h.find(rng(gen)) != h.end(); }, "std::containers lookup");
+        benchmark([&]() { x += h.find(A(rng(gen), rng(gen))) != h.end(); }, "std::containers lookup");
         auto it = asc.begin();
         benchmark([&]()
         {
             if (it == asc.end())
                 it = asc.begin();
-            x += *it;
+            x += it->x;
             ++it;
         }, "std::set walk");
         benchmark([&]()
         {
-            int n = rng(gen);
-            asc.erase(n);
-            desc.erase(n);
-            h.erase(n);
+            A a{rng(gen), rng(gen)};
+            asc.erase(a);
+            desc.erase(a);
+            h.erase(a);
         }, "std::containers erase");
     }
 

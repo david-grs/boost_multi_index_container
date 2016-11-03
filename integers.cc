@@ -13,7 +13,7 @@
 namespace tags {
 struct x_asc {};
 struct y_asc {};
-struct x_unordered {};
+struct unordered {};
 }
 
 struct A
@@ -46,7 +46,10 @@ struct hash<A>
 {
     std::size_t operator()(const A& a) const
     {
-        return std::hash<int>()(a.x);
+        std::size_t seed = 0;
+        boost::hash_combine(seed, a.x);
+        boost::hash_combine(seed, a.y);
+        return seed;
     }
 };
 
@@ -91,16 +94,17 @@ int main()
               std::greater<int>
             >,
             hashed_unique<
-              tag<tags::x_unordered>,
-              member<A, int, &A::x>
+              tag<tags::unordered>,
+              identity<A>,
+              std::hash<A>
             >
           >
         > mic;
 
         benchmark([&]() { mic.emplace(rng(gen), rng(gen)); }, "boost.mic insert");
 
-        auto&& h = mic.get<tags::x_unordered>();
-        benchmark([&]() { x += h.find(rng(gen)) != h.end(); }, "boost.mic lookup");
+        auto&& h = mic.get<tags::unordered>();
+        benchmark([&]() { x += h.find(A(rng(gen), rng(gen))) != h.end(); }, "boost.mic lookup");
 
         auto&& asc = mic.get<tags::x_asc>();
         auto it = asc.begin();
@@ -111,7 +115,7 @@ int main()
             x += it->x;
             ++it;
         }, "boost.mic walk");
-        benchmark([&]() { h.erase(rng(gen)); }, "boost.mic erase");
+        benchmark([&]() { h.erase(A(rng(gen), rng(gen))); }, "boost.mic erase");
     }
 
     // we use the same range of integers for the 2 tests

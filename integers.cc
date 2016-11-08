@@ -85,13 +85,11 @@ int main()
           indexed_by<
             ordered_unique<
               tag<tags::x_asc>,
-              member<A, int, &A::x>,
-              std::less<int>
+              member<A, int, &A::x>
             >,
             ordered_unique<
               tag<tags::y_asc>,
-              member<A, int, &A::y>,
-              std::greater<int>
+              member<A, int, &A::y>
             >,
             hashed_unique<
               tag<tags::unordered>,
@@ -122,32 +120,32 @@ int main()
     gen.seed(seed);
 
     {
-        std::set<A, CompX> asc;
-        std::set<A, CompY> desc;
+        std::set<A, CompX> x_asc;
+        std::set<A, CompY> y_asc;
         std::unordered_set<A> h;
 
         benchmark([&]()
         {
             A a{rng(gen), rng(gen)};
-            asc.insert(a);
-            desc.insert(a);
+            x_asc.insert(a);
+            y_asc.insert(a);
             h.insert(a);
         }, "std::sets insert");
 
         benchmark([&]() { x += h.find(A(rng(gen), rng(gen))) != h.end(); }, "std::containers lookup");
-        auto it = asc.begin();
+        auto it = x_asc.begin();
         benchmark([&]()
         {
-            if (it == asc.end())
-                it = asc.begin();
+            if (it == x_asc.end())
+                it = x_asc.begin();
             x += it->x;
             ++it;
         }, "std::set walk");
         benchmark([&]()
         {
             A a{rng(gen), rng(gen)};
-            asc.erase(a);
-            desc.erase(a);
+            x_asc.erase(a);
+            y_asc.erase(a);
             h.erase(a);
         }, "std::containers erase");
     }

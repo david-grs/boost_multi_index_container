@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 include_directories(.)
 add_executable(stock stock.cc)
-add_executable(employee employee.cc)
+add_executable(session session.cc)
 add_executable(employee_counter employee_counter.cc)
 add_executable(memory memory.cc)
 add_executable(integers integers.cc)

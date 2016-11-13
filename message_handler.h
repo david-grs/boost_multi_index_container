@@ -33,6 +33,8 @@ struct stock
 
     const char* get_market_ref() const { return market_ref.get().c_str(); }
 
+    std::experimental::string_view get_market_ref_view() const { return market_ref.get(); }
+
     counter<std::string> market_ref; // exchange specific
     counter<std::experimental::string_view> market_ref_view;
     std::string id;         // unique company-wide
@@ -92,7 +94,7 @@ struct market_data_provider_mic_string_view
     {
         auto& view = m_stocks.get<by_reference_view>();
 
-        counter<std::experimental::string_view> ref_view(market_ref, len);
+        std::experimental::string_view ref_view(market_ref, len);
         auto it = view.find(ref_view);
 
         if (it == view.end())
@@ -109,8 +111,8 @@ private:
       indexed_by<
         hashed_unique<
           tag<by_reference_view>,
-          member<stock, counter<std::experimental::string_view>, &stock::market_ref_view>,
-          std::hash<counter<std::experimental::string_view>>
+          const_mem_fun<stock, std::experimental::string_view, &stock::get_market_ref_view>,
+          std::hash<std::experimental::string_view>
         >
       >
     > m_stocks;

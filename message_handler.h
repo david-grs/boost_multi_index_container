@@ -31,12 +31,12 @@ struct stock
     stock& operator=(const stock&) = default;
     stock& operator=(stock&&) = default;
 
-    const char* get_market_ref() const { return market_ref.get().c_str(); }
+    const char* get_market_ref() const { return market_ref.c_str(); }
 
-    std::experimental::string_view get_market_ref_view() const { return market_ref.get(); }
+    std::experimental::string_view get_market_ref_view() const { return market_ref; }
 
-    counter<std::string> market_ref; // exchange specific
-    counter<std::experimental::string_view> market_ref_view;
+    std::string market_ref; // exchange specific
+    std::experimental::string_view market_ref_view;
     std::string id;         // unique company-wide
     double price;
     int volume;
@@ -56,7 +56,7 @@ struct market_data_provider_mic_string
         auto& view = m_stocks.get<by_reference>();
 
         // using this temp std::string cut by half the number of std::string copies in boost.mic
-        counter<std::string> str_market_ref(market_ref);
+        std::string str_market_ref(market_ref);
         auto it = view.find(str_market_ref);
 
         if (it == view.end())
@@ -73,8 +73,8 @@ private:
       indexed_by<
         hashed_unique<
           tag<by_reference>,
-          member<stock, counter<std::string>, &stock::market_ref>,
-          std::hash<counter<std::string>>
+          member<stock, std::string, &stock::market_ref>,
+          std::hash<std::string>
         >
       >
     > m_stocks;
@@ -125,7 +125,7 @@ struct market_data_provider_umap_string
 
     void add_stock(const stock& s)
     {
-        m_stocks.emplace(s.market_ref.get(), s);
+        m_stocks.emplace(s.market_ref, s);
     }
 
     void on_price_change(const char* market_ref, int /*len*/, double new_price)
@@ -150,7 +150,7 @@ struct market_data_provider_umap_string_view
     void add_stock(const stock& ss)
     {
         stock s(ss);
-        std::experimental::string_view sv{s.market_ref.get().c_str(), s.market_ref.get().size()};
+        std::experimental::string_view sv{s.market_ref};
         m_stocks.emplace(sv, std::move(s));
     }
 

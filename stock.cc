@@ -88,7 +88,7 @@ int main(int argc, char** argv)
         for (int i = 0; i < Iterations; ++i)
         {
             const stock& s = stocks[std::rand() % stocks.size()];
-            market_data_provider.on_price_change(s.market_ref.get().c_str(), s.market_ref.get().size(), 10.0);
+            market_data_provider.on_price_change(s.market_ref.c_str(), s.market_ref.size(), 10.0);
         }
 
         auto end = std::chrono::steady_clock::now();

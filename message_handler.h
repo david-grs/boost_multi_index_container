@@ -26,13 +26,6 @@ struct stock
         volume(_volume)
     {}
 
-    stock(const stock&) = default;
-    stock(stock&&) = default;
-    stock& operator=(const stock&) = default;
-    stock& operator=(stock&&) = default;
-
-    const char* get_market_ref() const { return market_ref.c_str(); }
-
     std::experimental::string_view get_market_ref_view() const { return market_ref; }
 
     std::string market_ref; // exchange specific

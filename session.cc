@@ -10,10 +10,9 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <experimental/string_view>
 
 using namespace boost::multi_index;
-
-struct client_connection {};
 
 struct session
 {
@@ -26,10 +25,11 @@ struct session
 
     std::string id() const { return user_name.substr(0, 3) + script_name.substr(0, 3); }
 
+    std::experimental::string_view user_name_view() const { return user_name; }
+    std::experimental::string_view script_name_view() const { return script_name; }
     std::string user_name;
     std::string script_name;
 
-    std::unique_ptr<client_connection> connection;
     std::chrono::time_point<std::chrono::system_clock> started_time;
 };
 
@@ -60,23 +60,25 @@ void simple_index()
 void composed_index()
 {
     boost::multi_index_container<
-      session,
-      indexed_by<
+        session,
+        indexed_by<
         hashed_unique<
-          tag<by_name>,
-          composite_key<
+            composite_key<
             session,
-            member<session, std::string, &session::user_name>,
-            member<session, std::string, &session::script_name>
+            const_mem_fun<session, std::experimental::string_view, &session::user_name_view>,
+            const_mem_fun<session, std::experimental::string_view, &session::script_name_view>
+            >,
+            composite_key_hash<
+            std::hash<std::experimental::string_view>,
+            std::hash<std::experimental::string_view>
+            >
           >
         >
-      >
     > sessions;
 
-    auto&& v = sessions.get<by_name>();
-    v.insert({"john", "foo.py"});
+    sessions.insert({"john", "foo.py"});
 
-    auto it = v.find(boost::make_tuple("john", "foo.py"));
+    auto it = sessions.find(boost::make_tuple("john", "foo.py"));
     std::cout << it->user_name << std::endl;
 }
 

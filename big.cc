@@ -17,7 +17,7 @@ using namespace boost::multi_index;
 
 struct A
 {
-    A(int _x, int _y) :
+    explicit A(int _x, int _y) :
       x(_x), y(_y), buffer(std::make_unique<char[]>(1024))
     {
     }
@@ -68,15 +68,41 @@ void test_container(const std::string& desc)
                       c.emplace(rng(gen), rng(gen));
                   });
 
+    volatile int x = 0;
+    auto& view = c.template get<0>();
+
+    run_benchmark(desc + " <lookup>",
+                  [&](int i)
+                  {
+                      auto it = view.find(rng(gen));
+                      x += it == view.cend();
+                  });
+
     malloc_counter& counter = mt.get<0>();
     std::cout << "malloc_calls=" << counter.malloc_calls() << " bytes_allocated=" << (counter.malloc_bytes() / std::size_t(1 << 20)) << "M" << std::endl;
 }
 
+// ugly hack
 template <typename T>
 struct vector : public std::vector<T>
 {
     template <typename... Args>
     void emplace(Args&&... args) { this->emplace_back(std::forward<Args>(args)...); }
+
+    auto find(int i) { return std::lower_bound(this->cbegin(), this->cend(), T(i, i)); }
+
+    template <std::size_t N>
+    auto& get() { return *this; }
+};
+
+// ugly hack^2
+template <typename T>
+struct multiset : public std::multiset<T>
+{
+    template <std::size_t N>
+    auto& get() { return *this; }
+
+    auto find(int i) { return std::multiset<T>::find(A(i, i)); }
 };
 
 int main(int argc, char** argv)
@@ -232,7 +258,7 @@ int main(int argc, char** argv)
     else if (argv0 == "6")
         test_container<vector<A>>("std::vector");
     else if (argv0 == "7")
-        test_container<std::multiset<A>>("std::multiset");
+        test_container<multiset<A>>("std::multiset");
 
     return 0;
 }

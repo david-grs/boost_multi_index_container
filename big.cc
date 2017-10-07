@@ -94,8 +94,12 @@ struct vector : public std::vector<T>
     template <std::size_t N>
     auto& get()
     {
-        // ugly hack^2
+        // ugly hack^10000
+        auto start = std::chrono::steady_clock::now();
         std::sort(this->begin(), this->end());
+        auto end = std::chrono::steady_clock::now();
+
+        std::cout << "std::vector <sort>: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
         return *this;
     }
 };

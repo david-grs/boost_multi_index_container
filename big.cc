@@ -75,7 +75,6 @@ void test_container(const std::string& desc)
 template <typename T>
 struct vector : public std::vector<T>
 {
-    vector() { this->reserve(int(1e6)); }
     template <typename... Args>
     void emplace(Args&&... args) { this->emplace_back(std::forward<Args>(args)...); }
 };

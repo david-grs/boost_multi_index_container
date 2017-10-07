@@ -35,6 +35,8 @@ struct A
 
     bool operator<(const A& rhs) const { return x < rhs.x; }
 
+    int get_x() const { return x; }
+
     int x;
     int y;
     std::unique_ptr<char[]> buffer;
@@ -57,6 +59,8 @@ struct B
     B& operator=(B&&) =default;
 
     bool operator<(const B& rhs) const { return *x < *rhs.x; }
+
+    int get_x() const { return *x; }
 
     std::unique_ptr<int> x;
     std::unique_ptr<int> y;
@@ -106,15 +110,15 @@ void test_container(const std::string& desc)
                       c.emplace(rng(gen), rng(gen));
                   });
 
-    volatile int x = 0;
+    volatile std::size_t x = 0;
     auto& view = c.template get<0>();
 
     run_benchmark(desc + " <lookup 100 elements>",
                   100,
                   [&]()
                   {
-                      auto it = view.find(rng(gen));
-                      x += it == view.cend();
+                      auto itt = view.find(rng(gen));
+                      x += itt == view.cend();
                   });
 
     run_benchmark(desc + " <insert 100 elements>",
@@ -122,6 +126,15 @@ void test_container(const std::string& desc)
                   [&]()
                   {
                       c.emplace(rng(gen), rng(gen));
+                  });
+
+    auto it = c.cbegin();
+    run_benchmark(desc + " <container walk>",
+                  c.size(),
+                  [&]()
+                  {
+                      x += it->get_x();
+                      ++it;
                   });
 
     malloc_counter& counter = mt.get<0>();

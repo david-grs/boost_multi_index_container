@@ -15,13 +15,6 @@
 
 using namespace boost::multi_index;
 
-namespace tags {
-struct x_asc {};
-struct y_asc {};
-struct x_desc {};
-struct y_desc {};
-}
-
 struct A
 {
     A(int _x, int _y) :
@@ -93,7 +86,6 @@ int main(int argc, char** argv)
         A,
         indexed_by<
         ordered_non_unique<
-            tag<tags::x_asc>,
             member<A, int, &A::x>
         >
         >
@@ -103,11 +95,9 @@ int main(int argc, char** argv)
         A,
         indexed_by<
         ordered_non_unique<
-            tag<tags::x_asc>,
             member<A, int, &A::x>
         >,
         ordered_non_unique<
-            tag<tags::y_asc>,
             member<A, int, &A::y>
         >
         >
@@ -117,20 +107,112 @@ int main(int argc, char** argv)
         A,
         indexed_by<
         ordered_non_unique<
-            tag<tags::x_asc>,
             member<A, int, &A::x>
         >,
         ordered_non_unique<
-            tag<tags::y_asc>,
             member<A, int, &A::y>
         >,
         ordered_non_unique<
-            tag<tags::x_desc>,
             member<A, int, &A::x>,
             std::greater<int>
         >,
         ordered_non_unique<
-            tag<tags::y_desc>,
+            member<A, int, &A::y>,
+            std::greater<int>
+        >
+        >
+    >;
+
+    using MIC8Indexes = boost::multi_index_container<
+        A,
+        indexed_by<
+        ordered_non_unique<
+            member<A, int, &A::x>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>,
+            std::greater<int>
+        >
+        >
+    >;
+
+    using MIC16Indexes = boost::multi_index_container<
+        A,
+        indexed_by<
+        ordered_non_unique<
+            member<A, int, &A::x>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::y>
+        >,
+        ordered_non_unique<
+            member<A, int, &A::x>,
+            std::greater<int>
+        >,
+        ordered_non_unique<
             member<A, int, &A::y>,
             std::greater<int>
         >
@@ -145,8 +227,12 @@ int main(int argc, char** argv)
     else if (argv0 == "3")
         test_container<MIC4Indexes>("boost::mic 4 indexes");
     else if (argv0 == "4")
-        test_container<vector<A>>("std::vector");
+        test_container<MIC8Indexes>("boost::mic 8 indexes");
     else if (argv0 == "5")
+        test_container<MIC16Indexes>("boost::mic 16 indexes");
+    else if (argv0 == "6")
+        test_container<vector<A>>("std::vector");
+    else if (argv0 == "7")
         test_container<std::multiset<A>>("std::set");
 
 #if 0

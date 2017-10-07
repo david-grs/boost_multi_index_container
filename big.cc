@@ -1,3 +1,6 @@
+#include "mtrace/mtrace.h"
+#include "mtrace/malloc_counter.h"
+
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -63,13 +66,17 @@ void test_container(const std::string& desc)
     std::mt19937 gen(seed);
     std::uniform_int_distribution<> rng(0, 1e6);
 
-    ContainerT c;
+    mtrace<malloc_counter> mt;
 
+    ContainerT c;
     run_benchmark(desc + " <insert>",
                   [&](int i)
                   {
                       c.emplace(rng(gen), rng(gen));
                   });
+
+    malloc_counter& counter = mt.get<0>();
+    std::cout << "malloc_calls=" << counter.malloc_calls() << " bytes_allocated=" << (counter.malloc_bytes() / std::size_t(1 << 20)) << "M" << std::endl;
 }
 
 template <typename T>

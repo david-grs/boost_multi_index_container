@@ -92,10 +92,15 @@ struct vector : public std::vector<T>
     auto find(int i) { return std::lower_bound(this->cbegin(), this->cend(), T(i, i)); }
 
     template <std::size_t N>
-    auto& get() { return *this; }
+    auto& get()
+    {
+        // ugly hack^2
+        std::sort(this->begin(), this->end());
+        return *this;
+    }
 };
 
-// ugly hack^2
+// ugly hack^3
 template <typename T>
 struct multiset : public std::multiset<T>
 {

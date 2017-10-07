@@ -72,10 +72,19 @@ void run_benchmark(const std::string& desc, std::size_t iterations, Callable&& c
         callable();
     auto end = std::chrono::steady_clock::now();
 
-    auto total_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    auto per_iteration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / double(iterations);
+    double total_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    if (total_time < 1.0)
+    {
+        total_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        std::cout << desc << ": total_time=" << total_time << "us";
+    }
+    else
+    {
+        std::cout << desc << ": total_time=" << total_time << "ms";
+    }
 
-    std::cout << desc << ": total_time=" << total_time << "ms per_iteration=" << per_iteration << "ns" << std::endl;
+    double per_iteration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / double(iterations);
+    std::cout << " per_iteration=" << per_iteration << "ns" << std::endl;
 };
 
 template <typename ContainerT>
@@ -100,16 +109,26 @@ void test_container(const std::string& desc)
     volatile int x = 0;
     auto& view = c.template get<0>();
 
-    run_benchmark(desc + " <lookup with size=" + std::to_string(ContainerSize) + ">",
-                  1000,
+    run_benchmark(desc + " <lookup 100 elements>",
+                  100,
                   [&]()
                   {
                       auto it = view.find(rng(gen));
                       x += it == view.cend();
                   });
 
+    run_benchmark(desc + " <insert 100 elements>",
+                  100,
+                  [&]()
+                  {
+                      c.emplace(rng(gen), rng(gen));
+                  });
+
     malloc_counter& counter = mt.get<0>();
     std::cout << "malloc_calls=" << counter.malloc_calls() << " bytes_allocated=" << (counter.malloc_bytes() / std::size_t(1 << 20)) << "M" << std::endl;
+
+    if (c.size() != ContainerSize + 100)
+        throw std::runtime_error("unexpected container size");
 }
 
 // ugly hack

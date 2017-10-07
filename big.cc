@@ -3,6 +3,7 @@
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
+#include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 
 #include <algorithm>
@@ -34,6 +35,29 @@ struct A
 
     int x;
     int y;
+    std::unique_ptr<char[]> buffer;
+};
+
+
+struct B
+{
+    explicit B(int _x, int _y) :
+      x(std::make_unique<int>(_x)), y(std::make_unique<int>(_y)), buffer(std::make_unique<char[]>(1024))
+    {
+    }
+
+    ~B() =default;
+
+    B(const B&) =delete;
+    B& operator=(const B&) =delete;
+
+    B(B&&) =default;
+    B& operator=(B&&) =default;
+
+    bool operator<(const B& rhs) const { return *x < *rhs.x; }
+
+    std::unique_ptr<int> x;
+    std::unique_ptr<int> y;
     std::unique_ptr<char[]> buffer;
 };
 
@@ -265,8 +289,10 @@ int main(int argc, char** argv)
     else if (argv0 == "5")
         test_container<MIC16Indexes>("boost::mic 16 indexes");
     else if (argv0 == "6")
-        test_container<vector<A>>("std::vector");
+        test_container<vector<A>>("std::vector<A>");
     else if (argv0 == "7")
+        test_container<vector<B>>("std::vector<B>");
+    else if (argv0 == "8")
         test_container<multiset<A>>("std::multiset");
 
     return 0;

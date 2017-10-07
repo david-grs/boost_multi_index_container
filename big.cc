@@ -16,6 +16,8 @@
 
 using namespace boost::multi_index;
 
+static const std::size_t ContainerSize = std::size_t(1e6);
+
 struct A
 {
     explicit A(int _x, int _y) :
@@ -62,16 +64,18 @@ struct B
 };
 
 template <typename Callable>
-void run_benchmark(const std::string& desc, Callable&& callable)
+void run_benchmark(const std::string& desc, std::size_t iterations, Callable&& callable)
 {
-    static const int Iterations = 1e6;
-
     auto start = std::chrono::steady_clock::now();
-    for (int i = 0; i < Iterations; ++i)
-        callable(i);
+
+    for (std::size_t i = 0; i < iterations; ++i)
+        callable();
     auto end = std::chrono::steady_clock::now();
 
-    std::cout << desc << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+    auto total_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    auto per_iteration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / double(iterations);
+
+    std::cout << desc << ": total_time=" << total_time << "ms per_iteration=" << per_iteration << "ns" << std::endl;
 };
 
 template <typename ContainerT>
@@ -86,8 +90,9 @@ void test_container(const std::string& desc)
     mtrace<malloc_counter> mt;
 
     ContainerT c;
-    run_benchmark(desc + " <insert>",
-                  [&](int i)
+    run_benchmark(desc + " <insert " + std::to_string(ContainerSize) + " elements>",
+                  ContainerSize,
+                  [&]()
                   {
                       c.emplace(rng(gen), rng(gen));
                   });
@@ -95,8 +100,9 @@ void test_container(const std::string& desc)
     volatile int x = 0;
     auto& view = c.template get<0>();
 
-    run_benchmark(desc + " <lookup>",
-                  [&](int i)
+    run_benchmark(desc + " <lookup with size=" + std::to_string(ContainerSize) + ">",
+                  1000,
+                  [&]()
                   {
                       auto it = view.find(rng(gen));
                       x += it == view.cend();

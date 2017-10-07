@@ -233,7 +233,7 @@ int main(int argc, char** argv)
     else if (argv0 == "6")
         test_container<vector<A>>("std::vector");
     else if (argv0 == "7")
-        test_container<std::multiset<A>>("std::set");
+        test_container<std::multiset<A>>("std::multiset");
 
 #if 0
     volatile int x = 0; // its only reason is to avoid the compiler to optimize lookups

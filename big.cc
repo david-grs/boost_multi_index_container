@@ -235,27 +235,5 @@ int main(int argc, char** argv)
     else if (argv0 == "7")
         test_container<std::multiset<A>>("std::multiset");
 
-#if 0
-    volatile int x = 0; // its only reason is to avoid the compiler to optimize lookups
-
-    {
-        benchmark([&]() { mic.emplace(rng(gen), rng(gen)); }, "boost.mic insert");
-
-        auto&& h = mic.get<tags::unordered>();
-        benchmark([&]() { x += h.find(A(rng(gen), rng(gen))) != h.end(); }, "boost.mic lookup");
-
-        auto&& asc = mic.get<tags::x_asc>();
-        auto it = asc.begin();
-        benchmark([&]()
-        {
-            if (it == asc.end())
-                it = asc.begin();
-            x += it->x;
-            ++it;
-        }, "boost.mic walk");
-        benchmark([&]() { h.erase(A(rng(gen), rng(gen))); }, "boost.mic erase");
-    }
-#endif
-
     return 0;
 }

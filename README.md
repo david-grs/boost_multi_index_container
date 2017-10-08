@@ -55,4 +55,10 @@ std::multiset <lookup 100 elements>: total_time=141us per_iteration=1410.05ns
 std::multiset <insert 100 elements>: total_time=213us per_iteration=2130.93ns
 std::multiset <container walk>: total_time=148ms per_iteration=148.317ns
 malloc_calls=2000207 bytes_allocated=1022M
+
+boost.flat_set <insert 1000000 elements>: total_time=234843ms per_iteration=234843ns
+boost.flat_set <lookup 100 elements>: total_time=94us per_iteration=949.07ns
+boost.flat_set <insert 100 elements>: total_time=22ms per_iteration=225400ns
+boost.flat_set <container walk>: total_time=2ms per_iteration=4.27402ns
+malloc_calls=1000128 bytes_allocated=1008M
 ```

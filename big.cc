@@ -6,6 +6,8 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 
+#include <boost/container/flat_set.hpp>
+
 #include <algorithm>
 #include <iostream>
 #include <random>
@@ -74,6 +76,7 @@ void run_benchmark(const std::string& desc, std::size_t iterations, Callable&& c
 
     for (std::size_t i = 0; i < iterations; ++i)
         callable();
+
     auto end = std::chrono::steady_clock::now();
 
     double total_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -144,7 +147,6 @@ void test_container(const std::string& desc)
         throw std::runtime_error("unexpected container size");
 }
 
-// ugly hack
 template <typename T>
 struct vector : public std::vector<T>
 {
@@ -171,7 +173,21 @@ struct vector : public std::vector<T>
     }
 };
 
-// ugly hack^2
+template <typename T>
+struct flat_set : public boost::container::flat_set<T>
+{
+    template <std::size_t N>
+    auto& get()
+    {
+        return *this;
+    }
+
+    auto find(int i)
+    {
+        return boost::container::flat_set<T>::find(A(i, i));
+    }
+};
+
 template <typename T>
 struct multiset : public std::multiset<T>
 {
@@ -183,7 +199,7 @@ struct multiset : public std::multiset<T>
 
     auto find(int i)
     {
-        return std::multiset<T>::find(A(i, i)); 
+        return std::multiset<T>::find(A(i, i));
     }
 };
 
@@ -343,6 +359,8 @@ int main(int argc, char** argv)
         test_container<vector<B>>("std::vector<B>");
     else if (argv0 == "8")
         test_container<multiset<A>>("std::multiset");
+    else if (argv0 == "9")
+        test_container<flat_set<A>>("boost.flat_set");
 
     return 0;
 }

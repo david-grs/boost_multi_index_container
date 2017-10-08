@@ -149,14 +149,19 @@ template <typename T>
 struct vector : public std::vector<T>
 {
     template <typename... Args>
-    void emplace(Args&&... args) { this->emplace_back(std::forward<Args>(args)...); }
+    void emplace(Args&&... args)
+    {
+        this->emplace_back(std::forward<Args>(args)...);
+    }
 
-    auto find(int i) { return std::lower_bound(this->cbegin(), this->cend(), T(i, i)); }
+    auto find(int i)
+    {
+        return std::lower_bound(this->cbegin(), this->cend(), T(i, i));
+    }
 
     template <std::size_t N>
     auto& get()
     {
-        // ugly hack^10000
         auto start = std::chrono::steady_clock::now();
         std::sort(this->begin(), this->end());
         auto end = std::chrono::steady_clock::now();
@@ -166,14 +171,20 @@ struct vector : public std::vector<T>
     }
 };
 
-// ugly hack^3
+// ugly hack^2
 template <typename T>
 struct multiset : public std::multiset<T>
 {
     template <std::size_t N>
-    auto& get() { return *this; }
+    auto& get()
+    {
+        return *this;
+    }
 
-    auto find(int i) { return std::multiset<T>::find(A(i, i)); }
+    auto find(int i)
+    {
+        return std::multiset<T>::find(A(i, i)); 
+    }
 };
 
 int main(int argc, char** argv)

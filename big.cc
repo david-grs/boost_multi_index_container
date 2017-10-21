@@ -205,6 +205,12 @@ struct multiset : public std::multiset<T>
 
 int main(int argc, char** argv)
 {
+    if (argc != 2)
+    {
+        std::cerr << "usage: " << argv[0] << " <0..9>" << std::endl;
+        return 1;
+    }
+
     using MIC1Index = boost::multi_index_container<
         A,
         indexed_by<

@@ -140,6 +140,15 @@ void test_container(const std::string& desc)
                       ++it;
                   });
 
+    auto rit = c.crbegin();
+    run_benchmark(desc + " <container reverse_walk>",
+                  c.size(),
+                  [&]()
+                  {
+                      x += rit->get_x();
+                      ++rit;
+                  });
+
     malloc_counter& counter = mt.get<0>();
     std::cout << "malloc_calls=" << counter.malloc_calls() << " bytes_allocated=" << (counter.malloc_bytes() / std::size_t(1 << 20)) << "M" << std::endl;
 
